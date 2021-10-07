@@ -61,7 +61,7 @@ function GrapherAxis(options::Opts, contents...)
     Axis(options, contents...)
 end
 
-function plot(x, y;
+function plot(obj;
               axis_options = @pgf{},
               plot_options = @pgf{},
               mark_options = @pgf{},
@@ -77,10 +77,18 @@ function plot(x, y;
                 default_plot_options, plot_options,
                 Opts(:mark_options => merge(default_mark_options, mark_options))
             ),
-            Coordinates(x, y)
+            obj,
         ),
         (haskey(kwargs, :legend) ? (LegendEntry(kwargs[:legend]),) : ())...
     )
+end
+
+function plot(x, y;
+              axis_options = @pgf{},
+              plot_options = @pgf{},
+              mark_options = @pgf{},
+              kwargs...)
+    plot(Coordinates(x, y); axis_options, plot_options, mark_options, kwargs...)
 end
 
 function plot(x::Axis, ys::Axis...; kwargs...)
@@ -97,13 +105,13 @@ function plot!(dest::Axis, srcs::Axis...; kwargs...)
     dest
 end
 
-function scatter(x, y;
+function scatter(args...;
                  axis_options = @pgf{},
                  plot_options = @pgf{},
                  mark_options = @pgf{},
                  kwargs...)
     plot_options[:only_marks] = nothing
-    plot(x, y; axis_options, plot_options, mark_options, kwargs...)
+    plot(args...; axis_options, plot_options, mark_options, kwargs...)
 end
 
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
