@@ -35,6 +35,7 @@ const plot_attributes = Dict(
     :fill => :fill,
     :opacity => :opacity,
     :line_width => :line_width,
+    :line_style => :line_style,
 )
 const mark_attributes = Dict(
     :marker_fill => :fill,
@@ -43,7 +44,7 @@ const mark_attributes = Dict(
 
 const default_axis_options = @pgf{legend_cell_align = "left"}
 const default_plot_options = @pgf{}
-const default_mark_options = @pgf{}
+const default_mark_options = @pgf{solid}
 
 
 function fixoptions!(options::Options)
@@ -56,6 +57,10 @@ function fixoptions!(options::Options)
     if haskey(options, :line_width)
         options[Symbol(options[:line_width])] = nothing # set line_width
         delete!(options, :line_width)
+    end
+    if haskey(options, :line_style)
+        options[Symbol(options[:line_style])] = nothing # set line_style
+        delete!(options, :line_style)
     end
 end
 function fixoptions!(plt::Plot)
