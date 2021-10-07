@@ -64,7 +64,7 @@ function GrapherAxis(options::Opts, contents...)
     Axis(options, contents...)
 end
 
-function plot(obj;
+function plot(obj = nothing;
               axis_options = @pgf{},
               plot_options = @pgf{},
               mark_options = @pgf{},
@@ -73,15 +73,21 @@ function plot(obj;
     merge!(plot_options, Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...))
     merge!(mark_options, Opts((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...))
 
-    GrapherAxis(
-        merge(default_axis_options, axis_options),
-        PlotInc(
+    if obj === nothing
+        plt = ()
+    else
+        plt = PlotInc(
             merge(
                 default_plot_options, plot_options,
                 Opts(:mark_options => merge(default_mark_options, mark_options))
             ),
             obj,
-        ),
+        ) |> tuple
+    end
+
+    GrapherAxis(
+        merge(default_axis_options, axis_options),
+        plt...,
         (haskey(kwargs, :legend) ? (LegendEntry(kwargs[:legend]),) : ())...
     )
 end
@@ -159,6 +165,7 @@ function moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10)
     @assert length(x) == length(y)
     x′ = moving_average(x, n)
     y′ = moving_average(y, n)
+    isempty(x′) && return plot(), plot()
     interp = LinearInterpolation(x′, y′, extrapolation_bc=Line())
     lower = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] ≤ interp(x[i])]...)
     upper = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] > interp(x[i])]...)
