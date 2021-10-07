@@ -8,6 +8,9 @@ export @pgf
 
 @reexport using LaTeXStrings
 
+using Interpolations
+
+
 export
     plot,
     plot!,
@@ -120,13 +123,17 @@ struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
     x_upper::X_Upper
     y_upper::Y_Upper
 end
+
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
     push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\usepgfplotslibrary{fillbetween}")
     axis_option = Opts((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
     line_option = Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
     fill_option = copy(line_option)
-    if !haskey(fill_option, :opacity)
-        fill_option[:opacity] = 0.1
+    if !haskey(fill_option, :opacity) && !haskey(kwargs, :fill_opacity)
+        fill_option[:opacity] = 0.2
+    end
+    if haskey(kwargs, :fill_opacity)
+        fill_option[:opacity] = kwargs[:fill_opacity]
     end
     if haskey(line_option, :opacity)
         delete!(line_option, :opacity)
@@ -145,6 +152,22 @@ function plot_fillbetween(x::AbstractVector, lower::AbstractVector, upper::Abstr
 end
 function plot(obj::FillBetween; kwargs...)
     plot_fillbetween(obj.x_lower, obj.y_lower, obj.x_upper, obj.y_upper; kwargs...)
+end
+
+moving_average(vs, n) = [sum(@view vs[i:(i+n-1)])/n for i in 1:(length(vs)-(n-1))]
+function moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10)
+    @assert length(x) == length(y)
+    x′ = moving_average(x, n)
+    y′ = moving_average(y, n)
+    interp = LinearInterpolation(x′, y′, extrapolation_bc=Line())
+    lower = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] ≤ interp(x[i])]...)
+    upper = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] > interp(x[i])]...)
+    Coordinates(x′, y′), FillBetween(lower[:,1], lower[:,2], upper[:,1], upper[:,2])
+end
+
+function plot_moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10; kwargs...)
+    plt1, plt2 = moving_average(x, y, n)
+    plot(plot(plt1; kwargs...), plot(plt2; nobounds = true, kwargs...))
 end
 
 end # module
