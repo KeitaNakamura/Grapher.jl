@@ -27,6 +27,7 @@ const plot_attributes = Dict(
     :color => :color,
     :fill => :fill,
     :opacity => :opacity,
+    :line_width => :line_width,
 )
 const mark_attributes = Dict(
     :marker_fill => :fill,
@@ -37,6 +38,29 @@ const default_axis_options = @pgf{legend_cell_align = "left"}
 const default_plot_options = @pgf{}
 const default_mark_options = @pgf{}
 
+
+function fixoptions!(options::Opts)
+    if haskey(options, :mark)
+        if options[:mark] === nothing
+            delete!(options, :mark)
+            options[:no_marks] = nothing # set no_marks
+        end
+    end
+    if haskey(options, :line_width)
+        options[Symbol(options[:line_width])] = nothing # set line_width
+        delete!(options, :line_width)
+    end
+end
+function fixoptions!(plt::Plot)
+    fixoptions!(plt.options)
+    plt
+end
+function GrapherAxis(options::Opts, contents...)
+    fixoptions!(options)
+    foreach(fixoptions!, contents)
+    Axis(options, contents...)
+end
+
 function plot(x, y;
               axis_options = @pgf{},
               plot_options = @pgf{},
@@ -46,17 +70,7 @@ function plot(x, y;
     merge!(plot_options, Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...))
     merge!(mark_options, Opts((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...))
 
-    if haskey(plot_options, :mark)
-        if plot_options[:mark] === nothing
-            delete!(plot_options, :mark)
-            plot_options[:no_marks] = nothing # set no_marks
-        end
-    end
-    if haskey(kwargs, :line_width)
-        plot_options[Symbol(kwargs[:line_width])] = nothing # set line_width
-    end
-
-    Axis(
+    GrapherAxis(
         merge(default_axis_options, axis_options),
         PlotInc(
             merge(
@@ -71,7 +85,7 @@ end
 
 function plot(x::Axis, ys::Axis...; kwargs...)
     options = merge(getproperty.((x, ys...), :options)...)
-    plot!(Axis(options), x, ys...; kwargs...)
+    plot!(GrapherAxis(options), x, ys...; kwargs...)
 end
 
 function plot!(dest::Axis, srcs::Axis...; kwargs...)
@@ -103,7 +117,7 @@ function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_uppe
     if haskey(kwargs, :color)
         line_option[:color] = kwargs[:color]
     end
-    Axis(axis_option,
+    GrapherAxis(axis_option,
          Plot(merge(@pgf{"name path=lower", no_marks}, line_option), Coordinates(x_lower, lower)),
          Plot(merge(@pgf{"name path=upper", no_marks}, line_option), Coordinates(x_upper, upper)),
          Plot(fill_option,
