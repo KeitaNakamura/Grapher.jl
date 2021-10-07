@@ -4,6 +4,8 @@ using Reexport
 
 using PGFPlotsX
 using PGFPlotsX: Options as Opts
+export @pgf
+
 @reexport using LaTeXStrings
 
 export
