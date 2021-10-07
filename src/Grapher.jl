@@ -83,8 +83,13 @@ function plot!(dest::Axis, srcs::Axis...; kwargs...)
     dest
 end
 
-function scatter(x, y; kwargs...)
-    plot(x, y; plot_options = @pgf{only_marks}, kwargs...)
+function scatter(x, y;
+                 axis_options = @pgf{},
+                 plot_options = @pgf{},
+                 mark_options = @pgf{},
+                 kwargs...)
+    plot_options[:only_marks] = nothing
+    plot(x, y; axis_options, plot_options, mark_options, kwargs...)
 end
 
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
