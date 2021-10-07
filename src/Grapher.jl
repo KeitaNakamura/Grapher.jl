@@ -177,7 +177,7 @@ function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_uppe
     if haskey(line_option, :opacity)
         delete!(line_option, :opacity)
     end
-    if haskey(kwargs, :nobounds) && kwargs[:nobounds] == true
+    if haskey(kwargs, :borderlines) && kwargs[:borderlines] == false
         line_option[:opacity] = 0.0
     end
     GrapherAxis(axis_option,
@@ -217,7 +217,7 @@ end
 
 function plot_moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10; kwargs...)
     plt1, plt2 = moving_average(x, y, n)
-    plot(plot(plt1; kwargs...), plot(plt2; nobounds = true, kwargs...))
+    plot(plot(plt1; kwargs...), plot(plt2; borderlines = false, kwargs...))
 end
 
 end # module
