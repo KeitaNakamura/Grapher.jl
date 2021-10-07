@@ -114,16 +114,25 @@ function scatter(args...;
     plot(args...; axis_options, plot_options, mark_options, kwargs...)
 end
 
+struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
+    x_lower::X_Lower
+    y_lower::Y_Lower
+    x_upper::X_Upper
+    y_upper::Y_Upper
+end
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
     push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\usepgfplotslibrary{fillbetween}")
     axis_option = Opts((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
-    fill_option = Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
-    line_option = @pgf{}
+    line_option = Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
+    fill_option = copy(line_option)
     if !haskey(fill_option, :opacity)
         fill_option[:opacity] = 0.1
     end
-    if haskey(kwargs, :color)
-        line_option[:color] = kwargs[:color]
+    if haskey(line_option, :opacity)
+        delete!(line_option, :opacity)
+    end
+    if haskey(kwargs, :nobounds) && kwargs[:nobounds] == true
+        line_option[:opacity] = 0.0
     end
     GrapherAxis(axis_option,
          Plot(merge(@pgf{"name path=lower", no_marks}, line_option), Coordinates(x_lower, lower)),
@@ -133,6 +142,9 @@ function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_uppe
 end
 function plot_fillbetween(x::AbstractVector, lower::AbstractVector, upper::AbstractVector; kwargs...)
     plot_fillbetween(x, lower, x, upper; kwargs...)
+end
+function plot(obj::FillBetween; kwargs...)
+    plot_fillbetween(obj.x_lower, obj.y_lower, obj.x_upper, obj.y_upper; kwargs...)
 end
 
 end # module
