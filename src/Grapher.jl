@@ -75,57 +75,66 @@ extract_axis_options(; kwargs...) = Options((axis_attributes[key] => value for (
 extract_plot_options(; kwargs...) = Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
 extract_mark_options(; kwargs...) = Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...)
 
-function plot(plt::Plot;
+function plot(plts::Plot...;
               axis_options = @pgf{},
               kwargs...)
     merge!(axis_options, extract_axis_options(; kwargs...))
     axis = GrapherAxis(
         merge(default_axis_options, axis_options),
-        plt,
+        plts...,
     )
     if haskey(kwargs, :legend)
-        push!(axis, LegendEntry(kwargs[:legend]))
+        if kwargs[:legend] isa AbstractString
+            push!(axis, LegendEntry(kwargs[:legend]))
+        else
+            push!(axis, Legend(kwargs[:legend]...))
+        end
     end
     axis
 end
 
-function plot(coordinates;
-              plot_options = @pgf{},
-              mark_options = @pgf{},
-              kwargs...)
+function plotobject(coordinates;
+                    plot_options = @pgf{},
+                    mark_options = @pgf{},
+                    kwargs...)
     merge!(plot_options, extract_plot_options(; kwargs...))
     merge!(mark_options, extract_mark_options(; kwargs...))
-    plt = PlotInc(
+    PlotInc(
         merge(
             default_plot_options, plot_options,
             @pgf{mark_options = merge(default_mark_options, mark_options)}
         ),
         coordinates,
     )
-    plot(plt; kwargs...)
 end
 
-function plot(coordinates::Coordinates{3};
-              plot_options = @pgf{},
-              mark_options = @pgf{},
-              kwargs...)
+function plotobject(coordinates::Coordinates{3};
+                    plot_options = @pgf{},
+                    mark_options = @pgf{},
+                    kwargs...)
     merge!(plot_options, extract_plot_options(; kwargs...))
     merge!(mark_options, extract_mark_options(; kwargs...))
-    plt = Plot3Inc(
+    Plot3Inc(
         merge(
             default_plot_options, plot_options,
             @pgf{mark_options = merge(default_mark_options, mark_options)}
         ),
         coordinates,
     )
-    plot(plt; kwargs...)
 end
 
-function plot(x, y; kwargs...)
-    plot(Coordinates(x, y); kwargs...)
+plotobject(x, y; kwargs...) = plotobject(Coordinates(x, y); kwargs...)
+plotobject(x, y, z; kwargs...) = plotobject(Coordinates(x, y, z); kwargs...)
+
+function plot(args...; kwargs...)
+    plot(plotobject(args...; kwargs...); kwargs...)
 end
-function plot(x, y, z; kwargs...)
-    plot(Coordinates(x, y, z); kwargs...)
+
+function plot(x, ys::Matrix; kwargs...)
+    plts = map(1:size(ys, 2)) do j
+        plotobject(x, view(ys, :, j); kwargs...)
+    end
+    plot(plts...; kwargs...)
 end
 
 function plot(x::Axis, ys::Axis...; kwargs...)
