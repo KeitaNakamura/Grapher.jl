@@ -47,8 +47,11 @@ function plot(x, y;
     if haskey(plot_options, :mark)
         if plot_options[:mark] === nothing
             delete!(plot_options, :mark)
-            merge!(plot_options, @pgf{no_marks})
+            plot_options[:no_marks] = nothing # set no_marks
         end
+    end
+    if haskey(kwargs, :line_width)
+        plot_options[Symbol(kwargs[:line_width])] = nothing # set line_width
     end
 
     Axis(
