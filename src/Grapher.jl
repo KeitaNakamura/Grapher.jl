@@ -28,6 +28,7 @@ const axis_attributes = Dict(
     :minorticks => :minor_tick_num,
     :width => :width,
     :height => :height,
+    :size => :size,
 )
 const plot_attributes = Dict(
     :marker => :mark,
@@ -61,6 +62,28 @@ function fixoptions!(options::Options)
     if haskey(options, :line_style)
         options[Symbol(options[:line_style])] = nothing # set line_style
         delete!(options, :line_style)
+    end
+    if haskey(options, :size)
+        if options[:size] == "landscape"
+            options[:width] = "80mm"
+            options[:height] = "50mm"
+        elseif options[:size] == "large landscape"
+            options[:width] = "140mm"
+            options[:height] = "90mm"
+        elseif options[:size] == "portrait"
+            options[:width] = "50mm"
+            options[:height] = "80mm"
+        elseif options[:size] == "large portrait"
+            options[:width] = "90mm"
+            options[:height] = "140mm"
+        elseif options[:size] == "square"
+            options[:width] = "80mm"
+            options[:height] = "80mm"
+        elseif options[:size] == "large square"
+            options[:width] = "140mm"
+            options[:height] = "140mm"
+        end
+        delete!(options, :size)
     end
 end
 function fixoptions!(plt::Plot)
