@@ -121,6 +121,17 @@ function plot(plts::Plot...;
     axis
 end
 
+function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
+              axis_options = @pgf{},
+              kwargs...)
+    dims = string(size(axes, 2), " by ", size(axes, 1))
+    merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
+    GroupPlot(
+        merge(default_axis_options, axis_options),
+        axes...,
+    )
+end
+
 function plotobject(coordinates;
                     plot_options = @pgf{},
                     mark_options = @pgf{},
