@@ -79,7 +79,7 @@ function plot!(dest::Axis, srcs::Axis...; kwargs...)
 end
 
 function scatter(x, y; kwargs...)
-    plot(x, y; axis_options = @pgf{only_marks}, kwargs...)
+    plot(x, y; plot_options = @pgf{only_marks}, kwargs...)
 end
 
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
