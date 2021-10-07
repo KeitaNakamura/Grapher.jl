@@ -199,20 +199,10 @@ function moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10)
     x′ = moving_average(x, n)
     y′ = moving_average(y, n)
     isempty(x′) && return plot(), plot()
-    flip = false
-    if !issorted(x′) # handle unsorted x for interpolation
-        x, y = y, x
-        x′, y′ = y′, x′
-        flip = true
-    end
     interp = LinearInterpolation(x′, y′, extrapolation_bc=Line())
     lower = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] ≤ interp(x[i])]...)
     upper = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] > interp(x[i])]...)
-    if flip
-        Coordinates(y′, x′), FillBetween(lower[:,2], lower[:,1], upper[:,2], upper[:,1])
-    else
-        Coordinates(x′, y′), FillBetween(lower[:,1], lower[:,2], upper[:,1], upper[:,2])
-    end
+    Coordinates(y′, x′), FillBetween(lower[:,2], lower[:,1], upper[:,2], upper[:,1])
 end
 
 function plot_moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10; kwargs...)
