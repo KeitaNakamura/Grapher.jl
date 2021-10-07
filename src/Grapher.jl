@@ -3,7 +3,7 @@ module Grapher
 using Reexport
 
 using PGFPlotsX
-using PGFPlotsX: Options as Opts
+using PGFPlotsX: Options
 export @pgf
 
 @reexport using LaTeXStrings
@@ -21,12 +21,9 @@ const axis_attributes = Dict(
     :xlabel => :xlabel,
     :ylabel => :ylabel,
     :zlabel => :zlabel,
-    :xmin => :xmin,
-    :xmax => :xmax,
-    :ymin => :ymin,
-    :ymax => :ymax,
-    :zmin => :zmin,
-    :zmax => :zmax,
+    :xmin => :xmin, :xmax => :xmax,
+    :ymin => :ymin, :ymax => :ymax,
+    :zmin => :zmin, :zmax => :zmax,
     :legend_pos => :legend_pos,
     :minorticks => :minor_tick_num,
     :width => :width,
@@ -49,7 +46,7 @@ const default_plot_options = @pgf{}
 const default_mark_options = @pgf{}
 
 
-function fixoptions!(options::Opts)
+function fixoptions!(options::Options)
     if haskey(options, :mark)
         if options[:mark] === nothing
             delete!(options, :mark)
@@ -65,67 +62,70 @@ function fixoptions!(plt::Plot)
     fixoptions!(plt.options)
     plt
 end
-function GrapherAxis(options::Opts, contents...)
+function GrapherAxis(options::Options, contents...)
     fixoptions!(options)
     foreach(fixoptions!, contents)
     Axis(options, contents...)
 end
 
-is3d(::Any) = false
-is3d(::Coordinates) = false
-is3d(::Coordinates{3}) = true
+add!(axis::Axis, content) = push!(axis, fixoptions!(content))
+add!(axis::Axis, contents::Vector) = (foreach(fixoptions!, contents); append!(axis, contents))
 
-function plot(obj = nothing;
+extract_axis_options(; kwargs...) = Options((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
+extract_plot_options(; kwargs...) = Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
+extract_mark_options(; kwargs...) = Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...)
+
+function plot(plt::Plot;
               axis_options = @pgf{},
-              plot_options = @pgf{},
-              mark_options = @pgf{},
               kwargs...)
-    merge!(axis_options, Opts((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...))
-    merge!(plot_options, Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...))
-    merge!(mark_options, Opts((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...))
-
-    if obj === nothing
-        plt = ()
-    else
-        if is3d(obj)
-            plt = Plot3Inc(
-                merge(
-                    default_plot_options, plot_options,
-                    Opts(:mark_options => merge(default_mark_options, mark_options))
-                ),
-                obj,
-            ) |> tuple
-        else
-            plt = PlotInc(
-                merge(
-                    default_plot_options, plot_options,
-                    Opts(:mark_options => merge(default_mark_options, mark_options))
-                ),
-                obj,
-            ) |> tuple
-        end
-    end
-
-    GrapherAxis(
+    merge!(axis_options, extract_axis_options(; kwargs...))
+    axis = GrapherAxis(
         merge(default_axis_options, axis_options),
-        plt...,
-        (haskey(kwargs, :legend) ? (LegendEntry(kwargs[:legend]),) : ())...
+        plt,
     )
+    if haskey(kwargs, :legend)
+        push!(axis, LegendEntry(kwargs[:legend]))
+    end
+    axis
 end
 
-function plot(x, y;
-              axis_options = @pgf{},
+function plot(coordinates;
               plot_options = @pgf{},
               mark_options = @pgf{},
               kwargs...)
-    plot(Coordinates(x, y); axis_options, plot_options, mark_options, kwargs...)
+    merge!(plot_options, extract_plot_options(; kwargs...))
+    merge!(mark_options, extract_mark_options(; kwargs...))
+    plt = PlotInc(
+        merge(
+            default_plot_options, plot_options,
+            @pgf{mark_options = merge(default_mark_options, mark_options)}
+        ),
+        coordinates,
+    )
+    plot(plt; kwargs...)
 end
-function plot(x, y, z;
-              axis_options = @pgf{},
+
+function plot(coordinates::Coordinates{3};
               plot_options = @pgf{},
               mark_options = @pgf{},
               kwargs...)
-    plot(Coordinates(x, y, z); axis_options, plot_options, mark_options, kwargs...)
+    merge!(plot_options, extract_plot_options(; kwargs...))
+    merge!(mark_options, extract_mark_options(; kwargs...))
+    plt = Plot3Inc(
+        merge(
+            default_plot_options, plot_options,
+            @pgf{mark_options = merge(default_mark_options, mark_options)}
+        ),
+        coordinates,
+    )
+    plot(plt; kwargs...)
+end
+
+function plot(x, y; kwargs...)
+    plot(Coordinates(x, y); kwargs...)
+end
+function plot(x, y, z; kwargs...)
+    plot(Coordinates(x, y, z); kwargs...)
 end
 
 function plot(x::Axis, ys::Axis...; kwargs...)
@@ -134,21 +134,17 @@ function plot(x::Axis, ys::Axis...; kwargs...)
 end
 
 function plot!(dest::Axis, srcs::Axis...; kwargs...)
-    axis_options = Opts((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
+    axis_options = extract_axis_options(; kwargs...)
     merge!(dest.options, axis_options)
     for src in srcs
-        append!(dest, src.contents)
+        add!(dest, src.contents)
     end
     dest
 end
 
-function scatter(args...;
-                 axis_options = @pgf{},
-                 plot_options = @pgf{},
-                 mark_options = @pgf{},
-                 kwargs...)
+function scatter(args...; plot_options = @pgf{}, kwargs...)
     plot_options[:only_marks] = nothing
-    plot(args...; axis_options, plot_options, mark_options, kwargs...)
+    plot(args...; plot_options, kwargs...)
 end
 
 struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
@@ -160,8 +156,8 @@ end
 
 function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
     push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\usepgfplotslibrary{fillbetween}")
-    axis_option = Opts((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
-    line_option = Opts((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
+    axis_option = extract_axis_options(; kwargs...)
+    line_option = extract_plot_options(; kwargs...)
     fill_option = copy(line_option)
     if !haskey(fill_option, :opacity) && !haskey(kwargs, :fill_opacity)
         fill_option[:opacity] = 0.2
