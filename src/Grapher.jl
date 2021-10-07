@@ -22,8 +22,11 @@ const axis_attributes = Dict(
     :ylabel => :ylabel,
     :zlabel => :zlabel,
     :xmin => :xmin,
+    :xmax => :maxn,
     :ymin => :ymin,
+    :ymax => :ymax,
     :zmin => :zmin,
+    :zmax => :zmax,
     :legend_pos => :legend_pos,
     :minorticks => :minor_tick_num,
 )
