@@ -20,8 +20,10 @@ export
 const axis_attributes = Dict(
     :xlabel => :xlabel,
     :ylabel => :ylabel,
+    :zlabel => :zlabel,
     :xmin => :xmin,
     :ymin => :ymin,
+    :zmin => :zmin,
     :legend_pos => :legend_pos,
     :minorticks => :minor_tick_num,
 )
@@ -64,6 +66,10 @@ function GrapherAxis(options::Opts, contents...)
     Axis(options, contents...)
 end
 
+is3d(::Any) = false
+is3d(::Coordinates) = false
+is3d(::Coordinates{3}) = true
+
 function plot(obj = nothing;
               axis_options = @pgf{},
               plot_options = @pgf{},
@@ -76,13 +82,23 @@ function plot(obj = nothing;
     if obj === nothing
         plt = ()
     else
-        plt = PlotInc(
-            merge(
-                default_plot_options, plot_options,
-                Opts(:mark_options => merge(default_mark_options, mark_options))
-            ),
-            obj,
-        ) |> tuple
+        if is3d(obj)
+            plt = Plot3Inc(
+                merge(
+                    default_plot_options, plot_options,
+                    Opts(:mark_options => merge(default_mark_options, mark_options))
+                ),
+                obj,
+            ) |> tuple
+        else
+            plt = PlotInc(
+                merge(
+                    default_plot_options, plot_options,
+                    Opts(:mark_options => merge(default_mark_options, mark_options))
+                ),
+                obj,
+            ) |> tuple
+        end
     end
 
     GrapherAxis(
@@ -98,6 +114,13 @@ function plot(x, y;
               mark_options = @pgf{},
               kwargs...)
     plot(Coordinates(x, y); axis_options, plot_options, mark_options, kwargs...)
+end
+function plot(x, y, z;
+              axis_options = @pgf{},
+              plot_options = @pgf{},
+              mark_options = @pgf{},
+              kwargs...)
+    plot(Coordinates(x, y, z); axis_options, plot_options, mark_options, kwargs...)
 end
 
 function plot(x::Axis, ys::Axis...; kwargs...)
