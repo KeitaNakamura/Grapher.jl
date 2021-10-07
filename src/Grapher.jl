@@ -29,6 +29,8 @@ const axis_attributes = Dict(
     :zmax => :zmax,
     :legend_pos => :legend_pos,
     :minorticks => :minor_tick_num,
+    :width => :width,
+    :height => :height,
 )
 const plot_attributes = Dict(
     :marker => :mark,
