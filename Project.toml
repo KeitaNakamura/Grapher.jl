@@ -1,0 +1,9 @@
+name = "Grapher"
+uuid = "cb5f3ba8-f211-439d-a907-3cde74a9b555"
+authors = ["Keita Nakamura <keita.nakamura.1109@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
