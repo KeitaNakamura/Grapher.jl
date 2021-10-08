@@ -29,6 +29,7 @@ const axis_attributes = Dict(
     :width => :width,
     :height => :height,
     :size => :size,
+    :cycle_list_name => :cycle_list_name,
 )
 const plot_attributes = Dict(
     :marker => :mark,
@@ -50,6 +51,7 @@ const default_axis_options =
         label_style = {font = raw"\footnotesize"},
         tick_label_style = {font = raw"\footnotesize"},
         legend_style = {font = raw"\footnotesize"},
+        cycle_list_name = "color list", # "linestyles", "linestyles*"
     }
 const default_plot_options = @pgf{}
 const default_mark_options = @pgf{solid}
