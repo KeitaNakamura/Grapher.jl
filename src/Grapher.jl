@@ -96,9 +96,6 @@ function GrapherAxis(options::Options, contents...)
     Axis(options, contents...)
 end
 
-add!(axis::Axis, content) = push!(axis, fixoptions!(content))
-add!(axis::Axis, contents::Vector) = (foreach(fixoptions!, contents); append!(axis, contents))
-
 extract_axis_options(; kwargs...) = Options((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
 extract_plot_options(; kwargs...) = Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
 extract_mark_options(; kwargs...) = Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...)
@@ -183,9 +180,10 @@ end
 
 function plot!(dest::Axis, srcs::Axis...; kwargs...)
     axis_options = extract_axis_options(; kwargs...)
-    merge!(dest.options, axis_options)
+    merge!(dest.options, fixoptions!(axis_options))
     for src in srcs
-        add!(dest, src.contents)
+        foreach(fixoptions!, src.contents)
+        append!(dest, src.contents)
     end
     dest
 end
