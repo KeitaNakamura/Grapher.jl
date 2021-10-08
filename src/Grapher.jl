@@ -55,7 +55,8 @@ const default_axis_options =
         label_style = {font = raw"\footnotesize"},
         tick_label_style = {font = raw"\footnotesize"},
         legend_style = {font = raw"\footnotesize"},
-        cycle_list_name = "color list", # "linestyles", "linestyles*"
+        # remove yellow from "color list". Other usuful lists are, for example, "linestyles", "linestyles*".
+        cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
         minor_tick_num = 1,
     }
 const default_plot_options = @pgf{}
