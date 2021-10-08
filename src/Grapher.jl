@@ -43,7 +43,7 @@ const mark_attributes = Dict(
     :marker_scale => :scale,
 )
 
-const default_axis_options = @pgf{legend_cell_align = "left"}
+const default_axis_options = @pgf{legend_cell_align = "left", scale_only_axis}
 const default_plot_options = @pgf{}
 const default_mark_options = @pgf{solid}
 
