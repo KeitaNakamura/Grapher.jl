@@ -140,8 +140,12 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     dims = string(size(axes, 2), " by ", size(axes, 1))
     merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
 
-    # apply legend only first axis
-    add_legend!(first(axes); kwargs...)
+    # apply legend to only one axis
+    if haskey(kwargs, :legend_pos) && kwargs[:legend_pos] == "outer north east"
+        add_legend!(axes[1,end]; kwargs...)
+    else
+        add_legend!(first(axes); kwargs...)
+    end
     # apply xlabel only bottom axes
     if haskey(kwargs, :xlabel)
         for I in CartesianIndices(axes)
