@@ -4,7 +4,8 @@ using Reexport
 
 using PGFPlotsX
 using PGFPlotsX: Options
-export @pgf
+const savegraph = pgfsave
+export @pgf, savegraph
 
 @reexport using LaTeXStrings
 
