@@ -140,11 +140,17 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     dims = string(size(axes, 2), " by ", size(axes, 1))
     merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
 
+    # TODO: should copy options in axes before modifying them?
     # apply legend to only one axis
+    if haskey(kwargs, :legend_pos_axis)
+        I = kwargs[:legend_pos_axis]
+    else
+        I = (1,1)
+    end
     if haskey(kwargs, :legend_pos) && kwargs[:legend_pos] == "outer north east"
         add_legend!(axes[1,end]; kwargs...)
     else
-        add_legend!(first(axes); kwargs...)
+        add_legend!(axes[I...]; kwargs...)
     end
     # apply xlabel only bottom axes
     if haskey(kwargs, :xlabel)
