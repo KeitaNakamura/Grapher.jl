@@ -85,6 +85,7 @@ function fixoptions!(options::Options)
         end
         delete!(options, :size)
     end
+    options
 end
 function fixoptions!(plt::Plot)
     fixoptions!(plt.options)
