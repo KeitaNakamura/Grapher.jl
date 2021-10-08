@@ -139,9 +139,33 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
               kwargs...)
     dims = string(size(axes, 2), " by ", size(axes, 1))
     merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
+
+    # apply legend only first axis
+    add_legend!(first(axes); kwargs...)
+    # apply xlabel only bottom axes
+    if haskey(kwargs, :xlabel)
+        for I in CartesianIndices(axes)
+            if I[1] == size(axes, 1)
+                axes[I] === nothing && continue
+                push!(axes[I].options, :xlabel => kwargs[:xlabel])
+            end
+        end
+        delete!(axis_options, :xlabel)
+    end
+    # apply xlabel only left axes
+    if haskey(kwargs, :ylabel)
+        for I in CartesianIndices(axes)
+            if I[2] == 1
+                axes[I] === nothing && continue
+                push!(axes[I].options, :ylabel => kwargs[:ylabel])
+            end
+        end
+        delete!(axis_options, :ylabel)
+    end
+
     GroupPlot(
         fixoptions!(merge(default_axis_options, axis_options)),
-        axes...,
+        permutedims(axes)...,
     )
 end
 
