@@ -53,6 +53,7 @@ const default_axis_options =
         tick_label_style = {font = raw"\footnotesize"},
         legend_style = {font = raw"\footnotesize"},
         cycle_list_name = "color list", # "linestyles", "linestyles*"
+        minor_tick_num = 1,
     }
 const default_plot_options = @pgf{}
 const default_mark_options = @pgf{solid}
