@@ -148,7 +148,9 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
 
     # TODO: should copy options in axes before modifying them?
-    # apply legend to only one axis
+    #################################
+    # apply legend to only one axis #
+    #################################
     if haskey(kwargs, :legend_pos_axis)
         I = kwargs[:legend_pos_axis]
     else
@@ -159,7 +161,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     else
         add_legend!(axes[I...]; kwargs...)
     end
-    # apply xlabel only bottom axes
+
+    #################################
+    # apply xlabel only bottom axes #
+    #################################
     if haskey(kwargs, :xlabel)
         for I in CartesianIndices(axes)
             if I[1] == size(axes, 1)
@@ -169,7 +174,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
         end
         delete!(axis_options, :xlabel)
     end
-    # apply xlabel only left axes
+
+    ###############################
+    # apply xlabel only left axes #
+    ###############################
     if haskey(kwargs, :ylabel)
         for I in CartesianIndices(axes)
             if I[2] == 1
@@ -178,6 +186,18 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
             end
         end
         delete!(axis_options, :ylabel)
+    end
+
+    #########################################################
+    # cycle_list_name doesn't affect in group plot options, #
+    # so directly put options into each axis.               #
+    #########################################################
+    if haskey(kwargs, :cycle_list_name)
+        for ax in axes
+            ax === nothing && continue
+            push!(ax.options, :cycle_list_name => kwargs[:cycle_list_name])
+        end
+        delete!(axis_options, :cycle_list_name)
     end
 
     GroupPlot(
