@@ -55,6 +55,7 @@ const default_plot_options = @pgf{}
 const default_mark_options = @pgf{solid}
 
 
+fixoptions!(x::Any) = x
 function fixoptions!(options::Options)
     if haskey(options, :mark)
         if options[:mark] === nothing
@@ -108,14 +109,7 @@ extract_axis_options(; kwargs...) = Options((axis_attributes[key] => value for (
 extract_plot_options(; kwargs...) = Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
 extract_mark_options(; kwargs...) = Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...)
 
-function plot(plts::Plot...;
-              axis_options = @pgf{},
-              kwargs...)
-    merge!(axis_options, extract_axis_options(; kwargs...))
-    axis = GrapherAxis(
-        merge(default_axis_options, axis_options),
-        plts...,
-    )
+function add_legend!(axis::Axis; kwargs...)
     if haskey(kwargs, :legend)
         if kwargs[:legend] isa AbstractString
             push!(axis, LegendEntry(kwargs[:legend]))
@@ -126,6 +120,20 @@ function plot(plts::Plot...;
     axis
 end
 
+# standard plot
+function plot(plts::Plot...;
+              axis_options = @pgf{},
+              kwargs...)
+    merge!(axis_options, extract_axis_options(; kwargs...))
+    axis = GrapherAxis(
+        merge(default_axis_options, axis_options),
+        plts...,
+    )
+    add_legend!(axis; kwargs...)
+    axis
+end
+
+# group plot
 function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
               axis_options = @pgf{},
               kwargs...)
@@ -135,6 +143,22 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
         fixoptions!(merge(default_axis_options, axis_options)),
         axes...,
     )
+end
+
+# multiple plots in one axis
+function plot!(dest::Axis, srcs::Axis...; kwargs...)
+    axis_options = extract_axis_options(; kwargs...)
+    merge!(dest.options, fixoptions!(axis_options))
+    for src in srcs
+        foreach(fixoptions!, src.contents)
+        append!(dest, src.contents)
+    end
+    add_legend!(dest; kwargs...)
+    dest
+end
+function plot(x::Axis, ys::Axis...; kwargs...)
+    options = merge(getproperty.((x, ys...), :options)...)
+    plot!(GrapherAxis(options), x, ys...; kwargs...)
 end
 
 function plotobject(coordinates;
@@ -179,21 +203,6 @@ function plot(x, ys::Matrix; kwargs...)
         plotobject(x, view(ys, :, j); kwargs...)
     end
     plot(plts...; kwargs...)
-end
-
-function plot(x::Axis, ys::Axis...; kwargs...)
-    options = merge(getproperty.((x, ys...), :options)...)
-    plot!(GrapherAxis(options), x, ys...; kwargs...)
-end
-
-function plot!(dest::Axis, srcs::Axis...; kwargs...)
-    axis_options = extract_axis_options(; kwargs...)
-    merge!(dest.options, fixoptions!(axis_options))
-    for src in srcs
-        foreach(fixoptions!, src.contents)
-        append!(dest, src.contents)
-    end
-    dest
 end
 
 function scatter(args...; plot_options = @pgf{}, kwargs...)
