@@ -42,6 +42,7 @@ const plot_attributes = Dict(
     :opacity => :opacity,
     :line_width => :line_width,
     :line_style => :line_style,
+    :smooth => :smooth,
 )
 const mark_attributes = Dict(
     :marker_fill => :fill,
@@ -100,6 +101,13 @@ function fixoptions!(options::Options)
             options[:height] = "140mm"
         end
         delete!(options, :size)
+    end
+    if haskey(options, :smooth)
+        if options[:smooth] == true
+            options[:smooth] = nothing
+        else
+            delete!(options, :smooth)
+        end
     end
     options
 end
