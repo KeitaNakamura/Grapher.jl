@@ -16,6 +16,8 @@ export
     plot,
     plot!,
     scatter,
+    xbar_stacked,
+    ybar_stacked,
     plot_fillbetween
 
 const axis_attributes = Dict(
@@ -31,12 +33,23 @@ const axis_attributes = Dict(
     :xmode => :xmode,
     :ymode => :ymode,
     :zmode => :zmode,
+    :symbolic_x_coords => :symbolic_x_coords,
+    :symbolic_y_coords => :symbolic_y_coords,
+    :symbolic_z_coords => :symbolic_z_coords,
+    :enlarge_x_limits => :enlarge_x_limits,
+    :enlarge_y_limits => :enlarge_y_limits,
+    :enlarge_z_limits => :enlarge_z_limits,
+    :enlargelimits => :enlargelimits,
+    :xtick => :xtick,
+    :ytick => :ytick,
+    :ztick => :ztick,
     :legend_pos => :legend_pos,
     :minorticks => :minor_tick_num,
     :width => :width,
     :height => :height,
     :size => :size,
     :cycle_list_name => :cycle_list_name,
+    :bar_width => :bar_width,
 )
 const plot_attributes = Dict(
     :marker => :mark,
@@ -219,8 +232,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
 end
 
 # multiple plots in one axis
-function plot!(dest::Axis, srcs::Axis...; kwargs...)
-    axis_options = extract_axis_options(; kwargs...)
+function plot!(dest::Axis, srcs::Axis...;
+               axis_options = @pgf{},
+               kwargs...)
+    merge!(axis_options, extract_axis_options(; kwargs...))
     merge!(dest.options, fixoptions!(axis_options))
     for src in srcs
         foreach(fixoptions!, src.contents)
@@ -281,6 +296,19 @@ end
 function scatter(args...; plot_options = @pgf{}, kwargs...)
     plot_options[:only_marks] = nothing
     plot(args...; plot_options, kwargs...)
+end
+
+function xbar_stacked(args...; axis_options = @pgf{}, kwargs...)
+    axis_options[:xbar_stacked] = nothing
+    axis_options[:ytick] = "data"
+    axis_options[:minor_tick_num] = 0
+    plot(args...; axis_options, kwargs...)
+end
+function ybar_stacked(args...; axis_options = @pgf{}, kwargs...)
+    axis_options[:ybar_stacked] = nothing
+    axis_options[:xtick] = "data"
+    axis_options[:minor_tick_num] = 0
+    plot(args...; axis_options, kwargs...)
 end
 
 struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
