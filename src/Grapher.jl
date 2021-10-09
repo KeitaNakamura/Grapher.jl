@@ -44,6 +44,8 @@ const axis_attributes = Dict(
     :ytick => :ytick,
     :ztick => :ztick,
     :legend_pos => :legend_pos,
+    :legend_columns => :legend_columns,
+    :legend_anchor => :legend_anchor,
     :minorticks => :minor_tick_num,
     :width => :width,
     :height => :height,
@@ -125,6 +127,30 @@ function fixoptions!(options::Options)
             delete!(options, :smooth)
         end
     end
+
+    # for legend style
+    !haskey(options, :legend_style) && (options[:legend_style] = @pgf{})
+    legend_style = options[:legend_style]
+    if haskey(options, :legend_pos)
+        if options[:legend_pos] isa String
+            if options[:legend_pos] == "outer south"
+                legend_style[:at] = Coordinate(0.5, -0.1)
+                legend_style[:anchor] = "north"
+                legend_style[:legend_columns] = "-1"
+                # legend_style[:inner_sep] = "1mm"
+                legend_style[:style] = @pgf{column_sep = "2mm"}
+                delete!(options, :legend_pos)
+            end
+        else
+            legend_style[:at] = Coordinate(options[:legend_pos]...)
+            delete!(options, :legend_pos)
+        end
+    end
+    if haskey(options, :legend_anchor)
+        legend_style[:anchor] = options[:legend_anchor]
+        delete!(options, :legend_anchor)
+    end
+
     options
 end
 function fixoptions!(plt::Plot)
