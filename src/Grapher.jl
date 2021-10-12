@@ -319,6 +319,13 @@ function plot(x, ys::Matrix; kwargs...)
     plot(plts...; kwargs...)
 end
 
+function plot(xs::Matrix, y; kwargs...)
+    plts = map(1:size(xs, 2)) do j
+        plotobject(view(xs, :, j), y; kwargs...)
+    end
+    plot(plts...; kwargs...)
+end
+
 function scatter(args...; plot_options = @pgf{}, kwargs...)
     plot_options[:only_marks] = nothing
     plot(args...; plot_options, kwargs...)
