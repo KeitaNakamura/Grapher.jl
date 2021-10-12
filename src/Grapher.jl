@@ -312,16 +312,42 @@ function plot(args...; kwargs...)
     plot(plotobject(args...; kwargs...); kwargs...)
 end
 
-function plot(x, ys::Matrix; kwargs...)
-    plts = map(1:size(ys, 2)) do j
-        plotobject(x, view(ys, :, j); kwargs...)
+function extract_eachplot_options(nplots::Int; kwargs...)
+    # following options allows collection such as vector and tuple
+    option_list = Tuple(keys(plot_attributes))
+    eachplot_options = map(1:nplots) do j
+        options = @pgf{}
+        for name in option_list
+            if haskey(kwargs, name)
+                if kwargs[name] isa Union{Tuple, AbstractVector}
+                    options[plot_attributes[name]] = kwargs[name][j]
+                else
+                    options[plot_attributes[name]] = kwargs[name]
+                end
+            end
+        end
+        options
     end
-    plot(plts...; kwargs...)
+    # remove options extrated in above code
+    newkwargs = Base.structdiff(values(kwargs),
+                                NamedTuple{option_list})
+    eachplot_options, pairs(newkwargs)
 end
-
-function plot(xs::Matrix, y; kwargs...)
+function plot(x, ys::Matrix; plot_options = @pgf{}, kwargs...)
+    eachplot_options, newkwargs = extract_eachplot_options(size(ys, 2); kwargs...)
+    plts = map(1:size(ys, 2)) do j
+        plotobject(x, view(ys, :, j);
+                   plot_options = merge(plot_options, eachplot_options[j]),
+                   newkwargs...)
+    end
+    plot(plts...; newkwargs...)
+end
+function plot(xs::Matrix, y; plot_options = @pgf{}, kwargs...)
+    eachplot_options, newkwargs = extract_eachplot_options(size(xs, 2); kwargs...)
     plts = map(1:size(xs, 2)) do j
-        plotobject(view(xs, :, j), y; kwargs...)
+        plotobject(view(xs, :, j), y;
+                   plot_options = merge(plot_options, eachplot_options[j]),
+                   newkwargs...)
     end
     plot(plts...; kwargs...)
 end
