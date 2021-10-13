@@ -33,9 +33,6 @@ const axis_attributes = Dict(
     :xmode => :xmode,
     :ymode => :ymode,
     :zmode => :zmode,
-    :symbolic_x_coords => :symbolic_x_coords,
-    :symbolic_y_coords => :symbolic_y_coords,
-    :symbolic_z_coords => :symbolic_z_coords,
     :enlarge_x_limits => :enlarge_x_limits,
     :enlarge_y_limits => :enlarge_y_limits,
     :enlarge_z_limits => :enlarge_z_limits,
@@ -61,6 +58,8 @@ const plot_attributes = Dict(
     :line_width => :line_width,
     :line_style => :line_style,
     :smooth => :smooth,
+    :only_marks => :only_marks,
+    :no_marks => :no_marks,
 )
 const mark_attributes = Dict(
     :marker_fill => :fill,
@@ -81,85 +80,11 @@ const default_axis_options =
 const default_plot_options = @pgf{}
 const default_mark_options = @pgf{solid}
 
+include("options.jl")
 
-fixoptions!(x::Any) = x
-function fixoptions!(options::Options)
-    if haskey(options, :mark)
-        if options[:mark] === nothing
-            delete!(options, :mark)
-            options[:no_marks] = nothing # set no_marks
-        end
-    end
-    if haskey(options, :line_width)
-        options[Symbol(options[:line_width])] = nothing # set line_width
-        delete!(options, :line_width)
-    end
-    if haskey(options, :line_style)
-        options[Symbol(options[:line_style])] = nothing # set line_style
-        delete!(options, :line_style)
-    end
-    if haskey(options, :size)
-        if options[:size] == "landscape"
-            options[:width] = "80mm"
-            options[:height] = "50mm"
-        elseif options[:size] == "large landscape"
-            options[:width] = "140mm"
-            options[:height] = "90mm"
-        elseif options[:size] == "portrait"
-            options[:width] = "50mm"
-            options[:height] = "80mm"
-        elseif options[:size] == "large portrait"
-            options[:width] = "90mm"
-            options[:height] = "140mm"
-        elseif options[:size] == "square"
-            options[:width] = "80mm"
-            options[:height] = "80mm"
-        elseif options[:size] == "large square"
-            options[:width] = "140mm"
-            options[:height] = "140mm"
-        end
-        delete!(options, :size)
-    end
-    if haskey(options, :smooth)
-        if options[:smooth] == true
-            options[:smooth] = nothing
-        else
-            delete!(options, :smooth)
-        end
-    end
-
-    # for legend style
-    !haskey(options, :legend_style) && (options[:legend_style] = @pgf{})
-    legend_style = options[:legend_style]
-    if haskey(options, :legend_pos)
-        if options[:legend_pos] isa String
-            if options[:legend_pos] == "outer south"
-                legend_style[:at] = Coordinate(0.5, -0.1)
-                legend_style[:anchor] = "north"
-                legend_style[:legend_columns] = "-1"
-                # legend_style[:inner_sep] = "1mm"
-                legend_style[:style] = @pgf{column_sep = "2mm"}
-                delete!(options, :legend_pos)
-            end
-        else
-            legend_style[:at] = Coordinate(options[:legend_pos]...)
-            delete!(options, :legend_pos)
-        end
-    end
-    if haskey(options, :legend_anchor)
-        legend_style[:anchor] = options[:legend_anchor]
-        delete!(options, :legend_anchor)
-    end
-
-    options
-end
-function fixoptions!(plt::Plot)
-    fixoptions!(plt.options)
-    plt
-end
 function GrapherAxis(options::Options, contents...)
-    fixoptions!(options)
-    foreach(fixoptions!, contents)
+    fix_options!(options)
+    foreach(fix_options!, contents)
     Axis(options, contents...)
 end
 
@@ -252,7 +177,7 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     end
 
     GroupPlot(
-        fixoptions!(merge(default_axis_options, axis_options)),
+        fix_options!(merge(default_axis_options, axis_options)),
         permutedims(axes)...,
     )
 end
@@ -262,9 +187,9 @@ function plot!(dest::Axis, srcs::Axis...;
                axis_options = @pgf{},
                kwargs...)
     merge!(axis_options, extract_axis_options(; kwargs...))
-    merge!(dest.options, fixoptions!(axis_options))
+    merge!(dest.options, fix_options!(axis_options))
     for src in srcs
-        foreach(fixoptions!, src.contents)
+        foreach(fix_options!, src.contents)
         append!(dest, src.contents)
     end
     add_legend!(dest; kwargs...)
