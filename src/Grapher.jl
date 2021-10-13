@@ -120,12 +120,12 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     if haskey(kwargs, :legend_pos_axis)
         I = kwargs[:legend_pos_axis]
     else
-        I = (1,1)
+        I = (1,1) # default
     end
     if haskey(kwargs, :legend_pos) && kwargs[:legend_pos] == "outer north east"
         add_legend!(axes[1,end]; kwargs...)
     else
-        add_legend!(axes[I...]; kwargs...)
+        add_legend!(axes[I...]; kwargs...) # default
     end
 
     #################################
@@ -167,7 +167,7 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     end
 
     GroupPlot(
-        fix_options!(merge(default_axis_options, axis_options)),
+        merge(default_axis_options, axis_options),
         permutedims(axes)...,
     )
 end
@@ -176,10 +176,8 @@ end
 function plot!(dest::Axis, srcs::Axis...;
                axis_options = @pgf{},
                kwargs...)
-    merge!(axis_options, extract_axis_options(; kwargs...))
-    merge!(dest.options, fix_options!(axis_options))
+    merge!(dest.options, axis_options, extract_axis_options(; kwargs...))
     for src in srcs
-        foreach(fix_options!, src.contents)
         append!(dest, src.contents)
     end
     add_legend!(dest; kwargs...)
