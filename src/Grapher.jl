@@ -66,7 +66,7 @@ const mark_attributes = Dict(
     :marker_scale => :scale,
 )
 
-const default_axis_options =
+default_axis_options() =
     @pgf{
         legend_cell_align = "left",
         scale_only_axis,
@@ -77,8 +77,8 @@ const default_axis_options =
         cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
         minor_tick_num = 1,
     }
-const default_plot_options = @pgf{}
-const default_mark_options = @pgf{solid}
+default_plot_options() = @pgf{}
+default_mark_options() = @pgf{solid}
 
 include("options.jl")
 
@@ -94,14 +94,9 @@ function add_legend!(axis::Axis; kwargs...)
 end
 
 # standard plot
-function plot(plts::Plot...;
-              axis_options = @pgf{},
-              kwargs...)
-    merge!(axis_options, extract_axis_options(; kwargs...))
-    axis = Axis(
-        merge(default_axis_options, axis_options),
-        plts...,
-    )
+function plot(plts::Plot...; kwargs...)
+    axis = Axis(default_axis_options(), plts...)
+    set_axis_options!(axis; kwargs...)
     add_legend!(axis; kwargs...)
     axis
 end
@@ -111,7 +106,7 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
               axis_options = @pgf{},
               kwargs...)
     dims = string(size(axes, 2), " by ", size(axes, 1))
-    merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
+    merge!(axis_options, @pgf{group_style = {group_size = dims}})
 
     # TODO: should copy options in axes before modifying them?
     #################################
@@ -166,56 +161,38 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
         delete!(axis_options, :cycle_list_name)
     end
 
-    GroupPlot(
-        merge(default_axis_options, axis_options),
-        permutedims(axes)...,
-    )
+    axislike = GroupPlot(default_axis_options(), permutedims(axes)...)
+    set_axis_options!(axislike; kwargs...)
+
+    axislike
 end
 
 # multiple plots in one axis
-function plot!(dest::Axis, srcs::Axis...;
-               axis_options = @pgf{},
-               kwargs...)
-    merge!(dest.options, axis_options, extract_axis_options(; kwargs...))
+function plot!(dest::Axis, srcs::Axis...; kwargs...)
     for src in srcs
+        merge!(dest.options, src.options)
         append!(dest, src.contents)
     end
     add_legend!(dest; kwargs...)
+    # overwrite options
+    set_plot_options!(dest; kwargs...)
+    set_axis_options!(dest; kwargs...)
     dest
 end
 function plot(x::Axis, ys::Axis...; kwargs...)
-    options = merge(getproperty.((x, ys...), :options)...)
-    plot!(Axis(options), x, ys...; kwargs...)
+    plot!(Axis(default_axis_options()), x, ys...; kwargs...)
 end
 
-function plotobject(coordinates;
-                    plot_options = @pgf{},
-                    mark_options = @pgf{},
-                    kwargs...)
-    merge!(plot_options, extract_plot_options(; kwargs...))
-    merge!(mark_options, extract_mark_options(; kwargs...))
-    PlotInc(
-        merge(
-            default_plot_options, plot_options,
-            @pgf{mark_options = merge(default_mark_options, mark_options)}
-        ),
-        coordinates,
-    )
+function plotobject(coordinates; kwargs...)
+    plt = PlotInc(default_plot_options(), coordinates)
+    set_plot_options!(plt; kwargs...)
+    plt
 end
 
-function plotobject(coordinates::Coordinates{3};
-                    plot_options = @pgf{},
-                    mark_options = @pgf{},
-                    kwargs...)
-    merge!(plot_options, extract_plot_options(; kwargs...))
-    merge!(mark_options, extract_mark_options(; kwargs...))
-    Plot3Inc(
-        merge(
-            default_plot_options, plot_options,
-            @pgf{mark_options = merge(default_mark_options, mark_options)}
-        ),
-        coordinates,
-    )
+function plotobject(coordinates::Coordinates{3}; kwargs...)
+    plt = Plot3Inc(default_plot_options(), coordinates)
+    set_plot_options!(plt; kwargs...)
+    plt
 end
 
 plotobject(x, y; kwargs...) = plotobject(Coordinates(x, y); kwargs...)

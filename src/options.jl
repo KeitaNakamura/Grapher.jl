@@ -107,3 +107,26 @@ end
 extract_axis_options(; kwargs...) = fix_axis_options!(Options((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...))
 extract_plot_options(; kwargs...) = fix_plot_options!(Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...))
 extract_mark_options(; kwargs...) = fix_mark_options!(Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...))
+
+set_axis_options!(a::Any; kwargs...) = a
+function set_axis_options!(a::PGFPlotsX.AxisLike; axis_options = @pgf{}, kwargs...)
+    merge!(a, axis_options, extract_axis_options(; kwargs...))
+    a
+end
+
+set_plot_options!(p::Any; kwargs...) = p
+function set_plot_options!(p::Plot; plot_options = @pgf{}, mark_options = @pgf{}, kwargs...)
+    merge!(p, plot_options, extract_plot_options(; kwargs...))
+    mark_options = default_mark_options()
+    if haskey(p.options, :mark_options)
+        merge!(mark_options, p[:mark_options])
+    end
+    merge!(mark_options, extract_mark_options(; kwargs...))
+    p[:mark_options] = mark_options
+    p
+end
+function set_plot_options!(a::PGFPlotsX.AxisLike; kwargs...)
+    for c in a.contents
+        set_plot_options!(c; kwargs...)
+    end
+end
