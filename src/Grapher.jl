@@ -82,16 +82,6 @@ const default_mark_options = @pgf{solid}
 
 include("options.jl")
 
-function GrapherAxis(options::Options, contents...)
-    fix_options!(options)
-    foreach(fix_options!, contents)
-    Axis(options, contents...)
-end
-
-extract_axis_options(; kwargs...) = Options((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...)
-extract_plot_options(; kwargs...) = Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...)
-extract_mark_options(; kwargs...) = Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...)
-
 function add_legend!(axis::Axis; kwargs...)
     if haskey(kwargs, :legend)
         if kwargs[:legend] isa AbstractString
@@ -108,7 +98,7 @@ function plot(plts::Plot...;
               axis_options = @pgf{},
               kwargs...)
     merge!(axis_options, extract_axis_options(; kwargs...))
-    axis = GrapherAxis(
+    axis = Axis(
         merge(default_axis_options, axis_options),
         plts...,
     )
@@ -197,7 +187,7 @@ function plot!(dest::Axis, srcs::Axis...;
 end
 function plot(x::Axis, ys::Axis...; kwargs...)
     options = merge(getproperty.((x, ys...), :options)...)
-    plot!(GrapherAxis(options), x, ys...; kwargs...)
+    plot!(Axis(options), x, ys...; kwargs...)
 end
 
 function plotobject(coordinates;
@@ -319,7 +309,7 @@ function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_uppe
     if haskey(kwargs, :borderlines) && kwargs[:borderlines] == false
         line_option[:opacity] = 0.0
     end
-    GrapherAxis(axis_option,
+    Axis(axis_option,
          Plot(merge(@pgf{"name path=lower", no_marks}, line_option), Coordinates(x_lower, lower)),
          Plot(merge(@pgf{"name path=upper", no_marks}, line_option), Coordinates(x_upper, upper)),
          Plot(fill_option,

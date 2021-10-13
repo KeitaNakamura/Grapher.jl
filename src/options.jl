@@ -62,6 +62,8 @@ function fix_axis_options!(options::Options)
             end
         end
     end
+
+    options
 end
 
 function fix_plot_options!(options::Options)
@@ -94,6 +96,12 @@ function fix_plot_options!(options::Options)
             options[:no_marks] = nothing # set no_marks
         end
     end
+
+    options
+end
+
+function fix_mark_options!(options::Options)
+    options
 end
 
 fix_options!(x::Any) = x
@@ -110,3 +118,7 @@ function fix_options!(o::Union{PGFPlotsX.OptionType, PGFPlotsX.AxisLike})
     end
     o
 end
+
+extract_axis_options(; kwargs...) = fix_axis_options!(Options((axis_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(axis_attributes, key))...))
+extract_plot_options(; kwargs...) = fix_plot_options!(Options((plot_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(plot_attributes, key))...))
+extract_mark_options(; kwargs...) = fix_mark_options!(Options((mark_attributes[key] => value for (key, value) in pairs(kwargs) if haskey(mark_attributes, key))...))
