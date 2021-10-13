@@ -274,13 +274,11 @@ end
 
 function xbar_stacked(args...; axis_options = @pgf{}, kwargs...)
     axis_options[:xbar_stacked] = nothing
-    axis_options[:ytick] = "data"
     axis_options[:minor_tick_num] = 0
     plot(args...; axis_options, kwargs...)
 end
 function ybar_stacked(args...; axis_options = @pgf{}, kwargs...)
     axis_options[:ybar_stacked] = nothing
-    axis_options[:xtick] = "data"
     axis_options[:minor_tick_num] = 0
     plot(args...; axis_options, kwargs...)
 end
