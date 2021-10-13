@@ -21,49 +21,49 @@ export
     plot_fillbetween
 
 const axis_attributes = Dict(
-    :xlabel => :xlabel,
-    :ylabel => :ylabel,
-    :zlabel => :zlabel,
-    :xmin => :xmin, :xmax => :xmax,
-    :ymin => :ymin, :ymax => :ymax,
-    :zmin => :zmin, :zmax => :zmax,
-    :x_dir => :x_dir,
-    :y_dir => :y_dir,
-    :z_dir => :z_dir,
-    :xaxis => :xmode,
-    :yaxis => :ymode,
-    :zaxis => :zmode,
-    :enlarge_x_limits => :enlarge_x_limits,
-    :enlarge_y_limits => :enlarge_y_limits,
-    :enlarge_z_limits => :enlarge_z_limits,
-    :enlargelimits => :enlargelimits,
-    :xtick => :xtick,
-    :ytick => :ytick,
-    :ztick => :ztick,
-    :legend_pos => :legend_pos,
-    :legend_columns => :legend_columns,
-    :legend_anchor => :legend_anchor,
-    :minorticks => :minor_tick_num,
-    :width => :width,
-    :height => :height,
-    :size => :size,
-    :cycle_list_name => :cycle_list_name,
-    :bar_width => :bar_width,
+    :xlabel => "xlabel",
+    :ylabel => "ylabel",
+    :zlabel => "zlabel",
+    :xmin => "xmin", :xmax => "xmax",
+    :ymin => "ymin", :ymax => "ymax",
+    :zmin => "zmin", :zmax => "zmax",
+    :x_dir => "x_dir",
+    :y_dir => "y_dir",
+    :z_dir => "z_dir",
+    :xaxis => "xmode",
+    :yaxis => "ymode",
+    :zaxis => "zmode",
+    :enlarge_x_limits => "enlarge_x_limits",
+    :enlarge_y_limits => "enlarge_y_limits",
+    :enlarge_z_limits => "enlarge_z_limits",
+    :enlargelimits => "enlargelimits",
+    :xtick => "xtick",
+    :ytick => "ytick",
+    :ztick => "ztick",
+    :legend_pos => "legend_pos",
+    :legend_columns => "legend_columns",
+    :legend_anchor => "legend_anchor",
+    :minorticks => "minor_tick_num",
+    :width => "width",
+    :height => "height",
+    :size => "size",
+    :cycle_list_name => "cycle_list_name",
+    :bar_width => "bar_width",
 )
 const plot_attributes = Dict(
-    :marker => :mark,
-    :color => :color,
-    :fill => :fill,
-    :opacity => :opacity,
-    :line_width => :line_width,
-    :line_style => :line_style,
-    :smooth => :smooth,
-    :only_marks => :only_marks,
-    :no_marks => :no_marks,
+    :marker => "mark",
+    :color => "color",
+    :fill => "fill",
+    :opacity => "opacity",
+    :line_width => "line_width",
+    :line_style => "line_style",
+    :smooth => "smooth",
+    :only_marks => "only_marks",
+    :no_marks => "no_marks",
 )
 const mark_attributes = Dict(
-    :marker_fill => :fill,
-    :marker_scale => :scale,
+    :marker_fill => "fill",
+    :marker_scale => "scale",
 )
 
 default_axis_options() =
@@ -77,7 +77,7 @@ default_axis_options() =
         cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
         minor_tick_num = 1,
     }
-default_plot_options() = @pgf{}
+default_plot_options() = @pgf{mark_options = default_mark_options()}
 default_mark_options() = @pgf{solid}
 
 include("options.jl")
@@ -106,7 +106,7 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
               axis_options = @pgf{},
               kwargs...)
     dims = string(size(axes, 2), " by ", size(axes, 1))
-    merge!(axis_options, @pgf{group_style = {group_size = dims}})
+    merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
 
     # TODO: should copy options in axes before modifying them?
     #################################
@@ -130,10 +130,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
         for I in CartesianIndices(axes)
             if I[1] == size(axes, 1)
                 axes[I] === nothing && continue
-                push!(axes[I].options, :xlabel => kwargs[:xlabel])
+                push!(axes[I].options, "xlabel" => kwargs[:xlabel])
             end
         end
-        delete!(axis_options, :xlabel)
+        delete!(axis_options, "xlabel")
     end
 
     ###############################
@@ -143,10 +143,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
         for I in CartesianIndices(axes)
             if I[2] == 1
                 axes[I] === nothing && continue
-                push!(axes[I].options, :ylabel => kwargs[:ylabel])
+                push!(axes[I].options, "ylabel" => kwargs[:ylabel])
             end
         end
-        delete!(axis_options, :ylabel)
+        delete!(axis_options, "ylabel")
     end
 
     #########################################################
@@ -156,15 +156,12 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     if haskey(kwargs, :cycle_list_name)
         for ax in axes
             ax === nothing && continue
-            push!(ax.options, :cycle_list_name => kwargs[:cycle_list_name])
+            push!(ax.options, "cycle_list_name" => kwargs[:cycle_list_name])
         end
-        delete!(axis_options, :cycle_list_name)
+        delete!(axis_options, "cycle_list_name")
     end
 
-    axislike = GroupPlot(default_axis_options(), permutedims(axes)...)
-    set_axis_options!(axislike; kwargs...)
-
-    axislike
+    GroupPlot(merge!(default_axis_options(), axis_options), permutedims(axes)...)
 end
 
 # multiple plots in one axis
@@ -228,18 +225,18 @@ function plot(xs::Matrix, y; plot_options = @pgf{}, kwargs...)
 end
 
 function scatter(args...; plot_options = @pgf{}, kwargs...)
-    plot_options[:only_marks] = nothing
+    plot_options["only_marks"] = nothing
     plot(args...; plot_options, kwargs...)
 end
 
 function xbar_stacked(args...; axis_options = @pgf{}, kwargs...)
-    axis_options[:xbar_stacked] = nothing
-    axis_options[:minor_tick_num] = 0
+    axis_options["xbar_stacked"] = nothing
+    axis_options["minor_tick_num"] = 0
     plot(args...; axis_options, kwargs...)
 end
 function ybar_stacked(args...; axis_options = @pgf{}, kwargs...)
-    axis_options[:ybar_stacked] = nothing
-    axis_options[:minor_tick_num] = 0
+    axis_options["ybar_stacked"] = nothing
+    axis_options["minor_tick_num"] = 0
     plot(args...; axis_options, kwargs...)
 end
 
@@ -255,17 +252,17 @@ function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_uppe
     axis_option = extract_axis_options(; kwargs...)
     line_option = extract_plot_options(; kwargs...)
     fill_option = copy(line_option)
-    if !haskey(fill_option, :opacity) && !haskey(kwargs, :fill_opacity)
-        fill_option[:opacity] = 0.2
+    if !haskey(fill_option, "opacity") && !haskey(kwargs, "fill_opacity")
+        fill_option["opacity"] = 0.2
     end
     if haskey(kwargs, :fill_opacity)
-        fill_option[:opacity] = kwargs[:fill_opacity]
+        fill_option["opacity"] = kwargs[:fill_opacity]
     end
-    if haskey(line_option, :opacity)
-        delete!(line_option, :opacity)
+    if haskey(line_option, "opacity")
+        delete!(line_option, "opacity")
     end
     if haskey(kwargs, :borderlines) && kwargs[:borderlines] == false
-        line_option[:opacity] = 0.0
+        line_option["opacity"] = 0.0
     end
     Axis(axis_option,
          Plot(merge(@pgf{"name path=lower", no_marks}, line_option), Coordinates(x_lower, lower)),
