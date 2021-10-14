@@ -68,12 +68,23 @@ end
 
 function fix_plot_options!(options::Options)
     # give only `{key}` not `{key = value}`
-    key_options = ["line_width", "line_style"]
+    key_options = ["line_style"]
     for name in key_options
         if haskey(options, name)
-            pgf_name = Symbol(options[name])
+            pgf_name = options[name]
             options[pgf_name] = nothing
             delete!(options, name)
+        end
+    end
+
+    # line_width
+    if haskey(options, "line_width")
+        if options["line_width"] in ["ultra thin", "very thin", "thin", "semithick", "thick", "very thick", "ultra thick"]
+            options[options["line_width"]] = nothing
+            delete!(options, "line_width")
+        elseif options["line_width"] === nothing
+            options["draw"] = "none"
+            delete!(options, "line_width")
         end
     end
 
