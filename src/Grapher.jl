@@ -102,13 +102,9 @@ function plot(plts::Plot...; kwargs...)
 end
 
 # group plot
-function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
-              axis_options = @pgf{},
-              kwargs...)
-    dims = string(size(axes, 2), " by ", size(axes, 1))
-    merge!(axis_options, extract_axis_options(; kwargs...), @pgf{group_style = {group_size = dims}})
+function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}}; kwargs...)
+    kwargs = Dict(kwargs)
 
-    # TODO: should copy options in axes before modifying them?
     #################################
     # apply legend to only one axis #
     #################################
@@ -128,12 +124,12 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     #################################
     if haskey(kwargs, :xlabel)
         for I in CartesianIndices(axes)
-            if I[1] == size(axes, 1)
+            if I[1] == size(axes, 1) # bottom
                 axes[I] === nothing && continue
-                push!(axes[I].options, "xlabel" => kwargs[:xlabel])
+                axes[I]["xlabel"] = kwargs[:xlabel]
             end
         end
-        delete!(axis_options, "xlabel")
+        delete!(kwargs, :xlabel)
     end
 
     ###############################
@@ -141,12 +137,12 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     ###############################
     if haskey(kwargs, :ylabel)
         for I in CartesianIndices(axes)
-            if I[2] == 1
+            if I[2] == 1 # left
                 axes[I] === nothing && continue
-                push!(axes[I].options, "ylabel" => kwargs[:ylabel])
+                axes[I]["ylabel"] = kwargs[:ylabel]
             end
         end
-        delete!(axis_options, "ylabel")
+        delete!(kwargs, :ylabel)
     end
 
     #########################################################
@@ -156,12 +152,18 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}};
     if haskey(kwargs, :cycle_list_name)
         for ax in axes
             ax === nothing && continue
-            push!(ax.options, "cycle_list_name" => kwargs[:cycle_list_name])
+            ax["cycle_list_name"] = kwargs[:cycle_list_name]
         end
-        delete!(axis_options, "cycle_list_name")
+        delete!(kwargs, :cycle_list_name)
     end
 
-    GroupPlot(merge!(default_axis_options(), axis_options), permutedims(axes)...)
+    dims = string(size(axes, 2), " by ", size(axes, 1))
+    axis_like = GroupPlot(
+        merge!(default_axis_options(), @pgf{group_style = {group_size = dims}}),
+        permutedims(axes)...,
+    )
+    set_axis_options!(axis_like; kwargs...)
+    axis_like
 end
 
 # multiple plots in one axis
