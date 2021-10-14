@@ -243,13 +243,6 @@ function ybar_stacked(args...; axis_options = @pgf{}, kwargs...)
     plot(args...; axis_options, kwargs...)
 end
 
-struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
-    x_lower::X_Lower
-    y_lower::Y_Lower
-    x_upper::X_Upper
-    y_upper::Y_Upper
-end
-
 function plot_fillbetween(x_lower::AbstractVector, y_lower::AbstractVector, x_upper::AbstractVector, y_upper::AbstractVector; kwargs...)
     preamble = raw"\usepgfplotslibrary{fillbetween}"
     !in(preamble, PGFPlotsX.CUSTOM_PREAMBLE) && push!(PGFPlotsX.CUSTOM_PREAMBLE, preamble)
@@ -266,26 +259,6 @@ function plot_fillbetween(x_lower::AbstractVector, y_lower::AbstractVector, x_up
 end
 function plot_fillbetween(x::AbstractVector, lower::AbstractVector, upper::AbstractVector; kwargs...)
     plot_fillbetween(x, lower, x, upper; kwargs...)
-end
-function plot(obj::FillBetween; kwargs...)
-    plot_fillbetween(obj.x_lower, obj.y_lower, obj.x_upper, obj.y_upper; kwargs...)
-end
-
-moving_average(vs, n) = [sum(@view vs[i:(i+n-1)])/n for i in 1:(length(vs)-(n-1))]
-function moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10)
-    @assert length(x) == length(y)
-    x′ = moving_average(x, n)
-    y′ = moving_average(y, n)
-    isempty(x′) && return plot(), plot()
-    interp = LinearInterpolation(x′, y′, extrapolation_bc=Line())
-    lower = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] ≤ interp(x[i])]...)
-    upper = vcat([[x[i] y[i]] for i in 1:length(x) if y[i] > interp(x[i])]...)
-    Coordinates(y′, x′), FillBetween(lower[:,2], lower[:,1], upper[:,2], upper[:,1])
-end
-
-function plot_moving_average(x::AbstractVector, y::AbstractVector, n::Int = 10; kwargs...)
-    plt1, plt2 = moving_average(x, y, n)
-    plot(plot(plt1; kwargs...), plot(plt2; borderlines = false, kwargs...))
 end
 
 end # module
