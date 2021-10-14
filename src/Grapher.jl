@@ -60,6 +60,7 @@ const plot_attributes = Dict(
     :smooth => "smooth",
     :only_marks => "only_marks",
     :no_marks => "no_marks",
+    :fill_opacity => "fill_opacity",
 )
 const mark_attributes = Dict(
     :marker_fill => "fill",
@@ -182,8 +183,8 @@ function plot(x::Axis, ys::Axis...; kwargs...)
     plot!(Axis(default_axis_options()), x, ys...; kwargs...)
 end
 
-function plotobject(coordinates; kwargs...)
-    plt = PlotInc(default_plot_options(), coordinates)
+function plotobject(args...; kwargs...)
+    plt = PlotInc(default_plot_options(), args...)
     set_plot_options!(plt; kwargs...)
     plt
 end
@@ -249,28 +250,19 @@ struct FillBetween{X_Lower, Y_Lower, X_Upper, Y_Upper}
     y_upper::Y_Upper
 end
 
-function plot_fillbetween(x_lower::AbstractVector, lower::AbstractVector, x_upper::AbstractVector, upper::AbstractVector; kwargs...)
-    push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\usepgfplotslibrary{fillbetween}")
-    axis_option = extract_axis_options(; kwargs...)
-    line_option = extract_plot_options(; kwargs...)
-    fill_option = copy(line_option)
-    if !haskey(fill_option, "opacity") && !haskey(kwargs, "fill_opacity")
-        fill_option["opacity"] = 0.2
+function plot_fillbetween(x_lower::AbstractVector, y_lower::AbstractVector, x_upper::AbstractVector, y_upper::AbstractVector; kwargs...)
+    preamble = raw"\usepgfplotslibrary{fillbetween}"
+    !in(preamble, PGFPlotsX.CUSTOM_PREAMBLE) && push!(PGFPlotsX.CUSTOM_PREAMBLE, preamble)
+
+    kwargs = Dict(kwargs)
+    if !haskey(kwargs, :opacity) && !haskey(kwargs, :fill_opacity)
+        kwargs[:fill_opacity] = "0.2"
     end
-    if haskey(kwargs, :fill_opacity)
-        fill_option["opacity"] = kwargs[:fill_opacity]
-    end
-    if haskey(line_option, "opacity")
-        delete!(line_option, "opacity")
-    end
-    if haskey(kwargs, :borderlines) && kwargs[:borderlines] == false
-        line_option["opacity"] = 0.0
-    end
-    Axis(axis_option,
-         Plot(merge(@pgf{"name path=lower", no_marks}, line_option), Coordinates(x_lower, lower)),
-         Plot(merge(@pgf{"name path=upper", no_marks}, line_option), Coordinates(x_upper, upper)),
-         Plot(fill_option,
-              raw"fill between [of=lower and upper]"))
+
+    lower = plotobject(x_lower, y_lower; plot_options = @pgf{"name path=lower", no_marks}, kwargs...)
+    upper = plotobject(x_upper, y_upper; plot_options = @pgf{"name path=upper", no_marks}, kwargs...)
+    fill  = plotobject(raw"fill between [of=lower and upper]"; kwargs...)
+    plot(lower, upper, fill; kwargs...)
 end
 function plot_fillbetween(x::AbstractVector, lower::AbstractVector, upper::AbstractVector; kwargs...)
     plot_fillbetween(x, lower, x, upper; kwargs...)
