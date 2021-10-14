@@ -32,7 +32,7 @@ function fix_axis_options!(options::Options)
         if options["legend_pos"] isa String
             # allow `legend_pos = "outer south"`
             if options["legend_pos"] == "outer south"
-                legend_style["at"] = Coordinate(0.5, -0.1)
+                legend_style["at"] = Coordinate(0.5, -0.15)
                 legend_style["anchor"] = "north"
                 legend_style["legend_columns"] = "-1"
                 # legend_style[:inner_sep] = "1mm"
