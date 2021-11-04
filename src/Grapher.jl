@@ -9,8 +9,6 @@ export @pgf, savegraph
 
 @reexport using LaTeXStrings
 
-using Interpolations
-
 
 export
     plot,
