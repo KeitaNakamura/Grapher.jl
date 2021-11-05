@@ -1,7 +1,7 @@
 name = "Grapher"
 uuid = "cb5f3ba8-f211-439d-a907-3cde74a9b555"
 authors = ["Keita Nakamura <keita.nakamura.1109@gmail.com>"]
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
