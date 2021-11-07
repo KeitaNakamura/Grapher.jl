@@ -1,3 +1,7 @@
+function Base.:(==)(a::Options, b::Options)
+    (a.print_empty == b.print_empty) && (a.dict == b.dict)
+end
+
 recursive_merge!(dest) = dest
 function recursive_merge!(dest, src, args...)
     recursive_merge!(dest, src)
