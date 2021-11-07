@@ -102,3 +102,16 @@ end
         end
     end
 end
+
+@testset "Plots" begin
+    function getcoords(x::Grapher.Axis)
+        plt = only(x.contents) # `Plot`
+        coords = plt.data      # `Coordinates`
+        coords.data            # `Vector`
+    end
+    @testset "with functions" begin
+        @test getcoords(plot([1,2,3], x -> x + 3)) == getcoords(plot([1,2,3], [4,5,6]))
+        @test getcoords(plot(y -> 2y, [1,2,3])) == getcoords(plot([2,4,6], [1,2,3]))
+        @test_throws Exception plot(y -> 2y, x -> x + 3)
+    end
+end
