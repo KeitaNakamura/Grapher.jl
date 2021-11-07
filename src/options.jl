@@ -1,3 +1,7 @@
+function Base.:(==)(a::Options, b::Options)
+    (a.print_empty == b.print_empty) && (a.dict == b.dict)
+end
+
 recursive_merge!(dest) = dest
 function recursive_merge!(dest, src, args...)
     recursive_merge!(dest, src)
@@ -20,6 +24,8 @@ function recursive_merge!(dest::Options, src::Options)
     end
     dest
 end
+
+recursive_merge(args...) = recursive_merge!(@pgf{}, args...)
 
 function fix_axis_options!(options::Options)
     # size of figure
