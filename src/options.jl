@@ -25,6 +25,8 @@ function recursive_merge!(dest::Options, src::Options)
     dest
 end
 
+recursive_merge(args...) = recursive_merge!(@pgf{}, args...)
+
 function fix_axis_options!(options::Options)
     # size of figure
     if haskey(options, "size")
