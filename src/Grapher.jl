@@ -8,6 +8,7 @@ const savegraph = pgfsave
 export @pgf, savegraph
 
 @reexport using LaTeXStrings
+using MappedArrays
 
 
 export
@@ -195,6 +196,17 @@ end
 
 plotobject(x, y; kwargs...) = plotobject(Coordinates(x, y); kwargs...)
 plotobject(x, y, z; kwargs...) = plotobject(Coordinates(x, y, z); kwargs...)
+
+# with functions
+function plotobject(x, y::Function; kwargs...)
+    plotobject(Coordinates(x, mappedarray(y, x)); kwargs...)
+end
+function plotobject(x::Function, y; kwargs...)
+    plotobject(Coordinates(mappedarray(x, y), y); kwargs...)
+end
+function plotobject(x::Function, y::Function; kwargs...)
+    throw(ArgumentError("`plot(::Function, ::Function)` is not supported"))
+end
 
 function plot(args...; kwargs...)
     plot(plotobject(args...; kwargs...); kwargs...)
