@@ -2,19 +2,19 @@ function Base.:(==)(a::Options, b::Options)
     (a.print_empty == b.print_empty) && (a.dict == b.dict)
 end
 
-recursive_merge!(dest) = dest
-function recursive_merge!(dest, src, args...)
-    recursive_merge!(dest, src)
-    recursive_merge!(dest, args...)
+merge_recursive!(dest) = dest
+function merge_recursive!(dest, src, args...)
+    merge_recursive!(dest, src)
+    merge_recursive!(dest, args...)
 end
 
-recursive_merge!(dest::PGFPlotsX.AxisLike, src::Options) = (recursive_merge!(dest.options, src); dest)
-recursive_merge!(dest::Plot, src::Options) = (recursive_merge!(dest.options, src); dest)
-function recursive_merge!(dest::Options, src::Options)
+merge_recursive!(dest::PGFPlotsX.AxisLike, src::Options) = (merge_recursive!(dest.options, src); dest)
+merge_recursive!(dest::Plot, src::Options) = (merge_recursive!(dest.options, src); dest)
+function merge_recursive!(dest::Options, src::Options)
     for name in keys(src.dict)
         if haskey(dest, name)
             if dest[name] isa Options && src[name] isa Options
-                recursive_merge!(dest[name], src[name])
+                merge_recursive!(dest[name], src[name])
             else
                 dest[name] = src[name]
             end
@@ -25,7 +25,7 @@ function recursive_merge!(dest::Options, src::Options)
     dest
 end
 
-recursive_merge(args...) = recursive_merge!(@pgf{}, args...)
+merge_recursive(args...) = merge_recursive!(@pgf{}, args...)
 
 function fix_axis_options!(options::Options)
     # size of figure
@@ -150,17 +150,17 @@ extract_mark_options(; kwargs...) = fix_mark_options!(Options((mark_attributes[k
 
 set_axis_options!(a::Any; kwargs...) = a
 function set_axis_options!(a::PGFPlotsX.AxisLike; axis_options = @pgf{}, kwargs...)
-    recursive_merge!(a, axis_options, extract_axis_options(; kwargs...))
+    merge_recursive!(a, axis_options, extract_axis_options(; kwargs...))
     a
 end
 
 set_plot_options!(p::Any; kwargs...) = p
 function set_plot_options!(p::Plot; plot_options = @pgf{}, mark_options = @pgf{}, kwargs...)
-    recursive_merge!(p, plot_options, extract_plot_options(; kwargs...))
+    merge_recursive!(p, plot_options, extract_plot_options(; kwargs...))
     if !haskey(p.options, "mark_options")
         p["mark_options"] = @pgf{}
     end
-    recursive_merge!(p["mark_options"], mark_options, extract_mark_options(; kwargs...))
+    merge_recursive!(p["mark_options"], mark_options, extract_mark_options(; kwargs...))
     p
 end
 function set_plot_options!(a::PGFPlotsX.AxisLike; kwargs...)
