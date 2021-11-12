@@ -60,6 +60,9 @@ const plot_attributes = Dict(
     :only_marks => "only_marks",
     :no_marks => "no_marks",
     :fill_opacity => "fill_opacity",
+    :xmap => "xmap",
+    :ymap => "ymap",
+    :zmap => "zmap",
 )
 const mark_attributes = Dict(
     :marker_fill => "fill",
@@ -194,15 +197,28 @@ function plotobject(coordinates::Coordinates{3}; kwargs...)
     plt
 end
 
-plotobject(x, y; kwargs...) = plotobject(Coordinates(x, y); kwargs...)
-plotobject(x, y, z; kwargs...) = plotobject(Coordinates(x, y, z); kwargs...)
+_map(f::typeof(identity), x) = x
+_map(f, x) = mappedarray(f, x)
+function plotobject(x, y; xmap = identity, ymap = identity, kwargs...)
+    x′ = _map(xmap, x)
+    y′ = _map(ymap, y)
+    # xmap and ymap options are dropped here
+    plotobject(Coordinates(x′, y′); kwargs...)
+end
+function plotobject(x, y, z; xmap = identity, ymap = identity, zmap = identity, kwargs...)
+    x′ = _map(xmap, x)
+    y′ = _map(ymap, y)
+    z′ = _map(zmap, z)
+    # xmap, ymap and zmap options are dropped here
+    plotobject(Coordinates(x′, y′, z′); kwargs...)
+end
 
 # with functions
 function plotobject(x, y::Function; kwargs...)
-    plotobject(Coordinates(x, mappedarray(y, x)); kwargs...)
+    plotobject(x, mappedarray(y, x); kwargs...)
 end
 function plotobject(x::Function, y; kwargs...)
-    plotobject(Coordinates(mappedarray(x, y), y); kwargs...)
+    plotobject(mappedarray(x, y), y; kwargs...)
 end
 function plotobject(x::Function, y::Function; kwargs...)
     throw(ArgumentError("`plot(::Function, ::Function)` is not supported"))
