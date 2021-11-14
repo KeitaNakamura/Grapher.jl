@@ -199,13 +199,13 @@ end
 
 _map(f::typeof(identity), x) = x
 _map(f, x) = mappedarray(f, x)
-function plotobject(x, y; xmap = identity, ymap = identity, kwargs...)
+function plotobject(x::AbstractVector, y::AbstractVector; xmap = identity, ymap = identity, kwargs...)
     x′ = _map(xmap, x)
     y′ = _map(ymap, y)
     # xmap and ymap options are dropped here
     plotobject(Coordinates(x′, y′); kwargs...)
 end
-function plotobject(x, y, z; xmap = identity, ymap = identity, zmap = identity, kwargs...)
+function plotobject(x::AbstractVector, y::AbstractVector, z::AbstractVector; xmap = identity, ymap = identity, zmap = identity, kwargs...)
     x′ = _map(xmap, x)
     y′ = _map(ymap, y)
     z′ = _map(zmap, z)
