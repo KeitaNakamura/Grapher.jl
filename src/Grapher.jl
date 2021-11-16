@@ -9,6 +9,7 @@ export @pgf, savegraph
 
 @reexport using LaTeXStrings
 using MappedArrays
+using CSV
 
 
 export
@@ -252,6 +253,14 @@ function plot(xs::Matrix, y; plot_options = @pgf{}, kwargs...)
     end
     plot(plts...; kwargs...)
 end
+
+extract_data(table::CSV.File, not_name) = not_name
+extract_data(table::CSV.File, name::Union{Symbol, AbstractString}) = table[name]
+extract_data(table::CSV.File, names::Union{Tuple, AbstractVector}) = hcat((table[name] for name in names)...)
+function plot(table::CSV.File, names...; kwargs...)
+    plot(extract_data.(Ref(table), names)...; kwargs...)
+end
+plot(filename::AbstractString, names...; kwargs...) = plot(CSV.File(filename), names...; kwargs...)
 
 function scatter(args...; plot_options = @pgf{}, kwargs...)
     plot_options["only_marks"] = nothing

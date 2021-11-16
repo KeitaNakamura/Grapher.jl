@@ -110,6 +110,10 @@ end
         coords = plt.data      # `Coordinates`
         coords.data            # `Vector`
     end
+    function getcoords(x::Grapher.Plot)
+        coords = x.data      # `Coordinates`
+        coords.data            # `Vector`
+    end
 
     @testset "with functions" begin
         @test getcoords(plot([1,2,3], x -> x + 3)) == getcoords(plot([1,2,3], [4,5,6]))
@@ -119,5 +123,11 @@ end
 
     @testset "map options" begin
         @test getcoords(plot([1,2,3], x -> x + 3, xmap = x->2x, ymap = -)) == getcoords(plot([2,4,6], -[4,5,6]))
+    end
+
+    @testset "csv file" begin
+        axis = plot("table.csv", :a, [:b, :c])
+        @test getcoords(axis.contents[1]) == getcoords(plot("table.csv", :a, :b))
+        @test getcoords(axis.contents[2]) == getcoords(plot("table.csv", :a, :c))
     end
 end
