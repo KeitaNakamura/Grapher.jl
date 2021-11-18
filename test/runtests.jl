@@ -34,6 +34,11 @@ plot_options(options::Grapher.Options) = Grapher.merge_recursive(Grapher.default
         ax = plot(["a","b","c"], [4,5,6], xtick = ["c","b","a"])
         @test ax.options == axis_options(@pgf{symbolic_x_coords = ["c","b","a"], xtick = "data"})
     end
+
+    @testset "lims" begin
+        ax = plot(1:3, 4:6, ylims = (0,10))
+        @test ax.options == axis_options(@pgf{ymin = 0, ymax = 10})
+    end
 end
 
 @testset "Legend" begin
