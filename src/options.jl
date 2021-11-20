@@ -92,6 +92,17 @@ function fix_axis_options!(options::Options)
         end
     end
 
+    # lims
+    for name in ("xlims", "ylims", "zlims")
+        if haskey(options, name)
+            dir = name[1]
+            min, max = options[name]
+            options[string(dir, "min")] = min
+            options[string(dir, "max")] = max
+            delete!(options, name)
+        end
+    end
+
     options
 end
 
