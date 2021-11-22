@@ -4,6 +4,16 @@ using Test
 axis_options(options::Grapher.Options) = Grapher.merge_recursive(Grapher.default_axis_options(), options)
 plot_options(options::Grapher.Options) = Grapher.merge_recursive(Grapher.default_plot_options(), options)
 
+function getcoords(x::Grapher.Axis)
+    plt = only(x.contents) # `Plot`
+    coords = plt.data      # `Coordinates`
+    coords.data            # `Vector`
+end
+function getcoords(x::Grapher.Plot)
+    coords = x.data      # `Coordinates`
+    coords.data            # `Vector`
+end
+
 
 @testset "Axis options" begin
     ax = plot([1,2,3], [4,5,6])
@@ -110,16 +120,6 @@ end
 end
 
 @testset "Plots" begin
-    function getcoords(x::Grapher.Axis)
-        plt = only(x.contents) # `Plot`
-        coords = plt.data      # `Coordinates`
-        coords.data            # `Vector`
-    end
-    function getcoords(x::Grapher.Plot)
-        coords = x.data      # `Coordinates`
-        coords.data            # `Vector`
-    end
-
     @testset "with functions" begin
         @test getcoords(plot([1,2,3], x -> x + 3)) == getcoords(plot([1,2,3], [4,5,6]))
         @test getcoords(plot(y -> 2y, [1,2,3])) == getcoords(plot([2,4,6], [1,2,3]))
@@ -135,4 +135,34 @@ end
         @test getcoords(axis.contents[1]) == getcoords(plot("table.csv", :a, :b))
         @test getcoords(axis.contents[2]) == getcoords(plot("table.csv", :a, :c))
     end
+end
+
+@testset "Group plot" begin
+    group = plot([plot([1,2,3], [4,5,6]), plot([1,2,3], [6,5,4])], xlabel = "xlabel", ylabel = "ylabel")
+    @test getcoords(group.contents[1]) == getcoords(plot([1,2,3], [4,5,6]))
+    @test getcoords(group.contents[2]) == getcoords(plot([1,2,3], [6,5,4]))
+    @test group.contents[1].options == axis_options(@pgf{ylabel = "ylabel"})
+    @test group.contents[2].options == axis_options(@pgf{xlabel = "xlabel", ylabel = "ylabel"})
+
+    group = plot([plot([1,2,3], [4,5,6]) plot([1,2,3], [6,5,4])], xlabel = "xlabel", ylabel = "ylabel")
+    @test getcoords(group.contents[1]) == getcoords(plot([1,2,3], [4,5,6]))
+    @test getcoords(group.contents[2]) == getcoords(plot([1,2,3], [6,5,4]))
+    @test group.contents[1].options == axis_options(@pgf{xlabel = "xlabel", ylabel = "ylabel"})
+    @test group.contents[2].options == axis_options(@pgf{xlabel = "xlabel"})
+
+    group = plot([plot([1,2,3], [4,5,6]) plot([1,2,3], [6,5,4])
+                  plot([1,2,3], [7,8,9]) plot([1,2,3], [9,8,7])],
+                 legend = "a", legend_pos = "north east")
+    ax = group.contents[1]
+    @test length(ax.contents) == 2
+    @test ax.contents[2] isa Grapher.LegendEntry
+    @test group.options["legend_pos"] == "north east"
+
+    group = plot([plot([1,2,3], [4,5,6]) plot([1,2,3], [6,5,4])
+                  plot([1,2,3], [7,8,9]) plot([1,2,3], [9,8,7])],
+                 legend = "a", legend_pos = "north east", legend_pos_axis = (2,2))
+    ax = group.contents[4]
+    @test length(ax.contents) == 2
+    @test ax.contents[2] isa Grapher.LegendEntry
+    @test group.options["legend_pos"] == "north east"
 end

@@ -140,11 +140,11 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}}; kwargs
     end
 
     ###############################
-    # apply xlabel only left axes #
+    # apply ylabel only left axes #
     ###############################
     if haskey(kwargs, :ylabel)
         for I in CartesianIndices(axes)
-            if I[2] == 1 # left
+            if I isa CartesianIndex{1} || I[2] == 1 # left
                 axes[I] === nothing && continue
                 axes[I]["ylabel"] = kwargs[:ylabel]
             end
