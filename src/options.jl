@@ -103,6 +103,14 @@ function fix_axis_options!(options::Options)
         end
     end
 
+    # black
+    if haskey(options, "black")
+        if options["black"]
+            options["cycle_list_name"] = "linestyles*"
+        end
+        delete!(options, "black")
+    end
+
     options
 end
 
