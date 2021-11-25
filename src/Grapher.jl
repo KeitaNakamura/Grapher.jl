@@ -81,7 +81,8 @@ default_axis_options() =
         legend_cell_align = "left",
         scale_only_axis,
         label_style = {font = raw"\footnotesize"},
-        tick_label_style = {font = raw"\footnotesize"},
+        scaled_ticks = false,
+        tick_label_style = {font = raw"\footnotesize", "/pgf/number format/fixed"},
         legend_style = {font = raw"\footnotesize"},
         # remove yellow from "color list". Other usuful lists are, for example, "linestyles", "linestyles*".
         cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
