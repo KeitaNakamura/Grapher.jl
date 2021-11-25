@@ -82,14 +82,27 @@ end
     plt = only(ax.contents)
     @test plt.options == plot_options(@pgf{color = "red", marker = "o"})
 
-    @testset "marker" begin
+    @testset "mark/marker" begin
+        # mark/marker
+        ax = plot([1,2,3], [4,5,6], mark = "o")
+        @test only(ax.contents).options == plot_options(@pgf{mark = "o"})
         ax = plot([1,2,3], [4,5,6], marker = "o")
-        plt = only(ax.contents)
-        @test plt.options == plot_options(@pgf{mark = "o"})
-
+        @test only(ax.contents).options == plot_options(@pgf{mark = "o"})
+        # mark/marker = nothing
+        ax = plot([1,2,3], [4,5,6], mark = nothing)
+        @test only(ax.contents).options == plot_options(@pgf{no_marks})
         ax = plot([1,2,3], [4,5,6], marker = nothing)
-        plt = only(ax.contents)
-        @test plt.options == plot_options(@pgf{no_marks})
+        @test only(ax.contents).options == plot_options(@pgf{no_marks})
+        # no_marks/no_markers
+        ax = plot([1,2,3], [4,5,6], no_marks = true)
+        @test only(ax.contents).options == plot_options(@pgf{no_marks})
+        ax = plot([1,2,3], [4,5,6], no_markers = true)
+        @test only(ax.contents).options == plot_options(@pgf{no_marks})
+        # only_marks/only_markers
+        ax = plot([1,2,3], [4,5,6], only_marks = true)
+        @test only(ax.contents).options == plot_options(@pgf{only_marks})
+        ax = plot([1,2,3], [4,5,6], only_markers = true)
+        @test only(ax.contents).options == plot_options(@pgf{only_marks})
     end
 
     @testset "line_style" begin
