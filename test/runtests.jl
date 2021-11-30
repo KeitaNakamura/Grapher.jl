@@ -50,6 +50,11 @@ end
         @test ax.options == axis_options(@pgf{ymin = 0, ymax = 10})
     end
 
+    @testset "xdir, ydir, zdir" begin
+        ax = plot(1:3, 4:6, xdir = "reverse")
+        @test ax.options == axis_options(@pgf{x_dir = "reverse"})
+    end
+
     @testset "black" begin
         ax = plot(1:3, 4:6, black = true)
         @test ax.options == axis_options(@pgf{cycle_list_name = "linestyles*"})
