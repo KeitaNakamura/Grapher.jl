@@ -45,6 +45,16 @@ end
         @test ax.options == axis_options(@pgf{symbolic_x_coords = ["c","b","a"], xtick = "data"})
     end
 
+    @testset "xtick_precision, ytick_precision, ztick_precision" begin
+        ax = plot([0.001, 0.01, 0.1], [0.001, 0.01, 0.1], xtick_precision = 3)
+        @test ax.options == axis_options(@pgf{scaled_x_ticks = false, x_tick_label_style = {"/pgf/number format/fixed", "/pgf/number format/precision" = 3}})
+    end
+
+    @testset "logtick_fixed" begin
+        ax = plot([0.001, 0.01, 0.1], [0.001, 0.01, 0.1], logtick_fixed = true)
+        @test ax.options == axis_options(@pgf{log_ticks_with_fixed_point})
+    end
+
     @testset "lims" begin
         ax = plot(1:3, 4:6, ylims = (0,10))
         @test ax.options == axis_options(@pgf{ymin = 0, ymax = 10})

@@ -2,6 +2,9 @@ function Base.:(==)(a::Options, b::Options)
     (a.print_empty == b.print_empty) && (a.dict == b.dict)
 end
 
+Base.get(x::Options, name, default) = get(x.dict, name, default)
+Base.get!(x::Options, name, default) = get!(x.dict, name, default)
+
 merge_recursive!(dest) = dest
 function merge_recursive!(dest, src, args...)
     merge_recursive!(dest, src)
@@ -90,6 +93,23 @@ function fix_axis_options!(options::Options)
                 options[name] = collect(options[name])
             end
         end
+    end
+
+    # tick_precision
+    for name in ("xtick_precision", "ytick_precision", "ztick_precision")
+        if haskey(options, name)
+            dir = name[1]
+            options["scaled_$(dir)_ticks"] = false
+            tick_label_style = get!(options, "$(dir)_tick_label_style", @pgf{})
+            tick_label_style["/pgf/number format/fixed"] = nothing
+            tick_label_style["/pgf/number format/precision"] = options[name]
+            delete!(options, name)
+        end
+    end
+
+    if get(options, "logtick_fixed", false)
+        options["log_ticks_with_fixed_point"] = nothing
+        delete!(options, "logtick_fixed")
     end
 
     # lims
