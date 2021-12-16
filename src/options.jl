@@ -2,6 +2,9 @@ function Base.:(==)(a::Options, b::Options)
     (a.print_empty == b.print_empty) && (a.dict == b.dict)
 end
 
+Base.keys(x::Options) = keys(x.dict)
+Base.values(x::Options) = values(x.dict)
+
 Base.get(x::Options, name, default) = get(x.dict, name, default)
 Base.get!(x::Options, name, default) = get!(x.dict, name, default)
 
