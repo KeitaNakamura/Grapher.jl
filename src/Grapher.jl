@@ -12,7 +12,7 @@ using MappedArrays
 using CSV
 
 function __init__()
-    push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage{siunitx}")
+    push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage[group-separator={,}]{siunitx}")
 end
 
 export
