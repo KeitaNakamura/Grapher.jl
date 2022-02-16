@@ -199,3 +199,11 @@ end
     @test ax.contents[2] isa Grapher.LegendEntry
     @test group.options["legend_pos"] == "north east"
 end
+
+@testset "Save graph" begin
+    plt = plot([1,2,3], [4,5,6])
+    savegraph("test1.pdf", plt)
+    plt |> savegraph("test2.pdf")
+    @test isfile("test1.pdf")
+    @test isfile("test2.pdf")
+end
