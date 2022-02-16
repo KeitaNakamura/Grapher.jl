@@ -199,6 +199,7 @@ function plot(x::Axis, ys::Axis...; kwargs...)
     plot!(Axis(default_axis_options()), x, ys...; kwargs...)
 end
 
+# plotobject
 function plotobject(args...; kwargs...)
     plt = PlotInc(default_plot_options(), args...)
     set_plot_options!(plt; kwargs...)
@@ -213,16 +214,18 @@ end
 
 _map(f::typeof(identity), x) = x
 _map(f, x) = mappedarray(f, x)
+_missing_to_nan(x::AbstractVector) = x
+_missing_to_nan(x::AbstractVector{Union{Missing, T}}) where {T <: AbstractFloat} = map(y -> ismissing(y) ? T(NaN) : y, x)
 function plotobject(x::AbstractVector, y::AbstractVector; xmap = identity, ymap = identity, kwargs...)
-    x′ = _map(xmap, x)
-    y′ = _map(ymap, y)
+    x′ = _missing_to_nan(_map(xmap, x))
+    y′ = _missing_to_nan(_map(ymap, y))
     # xmap and ymap options are dropped here
     plotobject(Coordinates(x′, y′); kwargs...)
 end
 function plotobject(x::AbstractVector, y::AbstractVector, z::AbstractVector; xmap = identity, ymap = identity, zmap = identity, kwargs...)
-    x′ = _map(xmap, x)
-    y′ = _map(ymap, y)
-    z′ = _map(zmap, z)
+    x′ = _missing_to_nan(_map(xmap, x))
+    y′ = _missing_to_nan(_map(ymap, y))
+    z′ = _missing_to_nan(_map(zmap, z))
     # xmap, ymap and zmap options are dropped here
     plotobject(Coordinates(x′, y′, z′); kwargs...)
 end
