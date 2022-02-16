@@ -168,6 +168,12 @@ end
         @test getcoords(axis.contents[1]) == getcoords(plot("table.csv", :a, :b))
         @test getcoords(axis.contents[2]) == getcoords(plot("table.csv", :a, :c))
     end
+
+    @testset "missing" begin
+        plt = plot(1:5, [1.0,2.0,missing,4.0,5.0])
+        @test getcoords(plt) == getcoords(plot(1:5, [1.0,2.0,NaN,4.0,5.0]))
+        @test_throws Exception plot(1:5, [1,2,missing,4,5])
+    end
 end
 
 @testset "Group plot" begin
