@@ -4,7 +4,6 @@ using Reexport
 
 using PGFPlotsX
 using PGFPlotsX: Options
-const savegraph = pgfsave
 export @pgf, savegraph
 
 @reexport using LaTeXStrings
@@ -309,5 +308,8 @@ end
 function plot_fillbetween(x::AbstractVector, lower::AbstractVector, upper::AbstractVector; kwargs...)
     plot_fillbetween(x, lower, x, upper; kwargs...)
 end
+
+savegraph(filename::String, td; kwargs...) = pgfsave(filename, td; kwargs...)
+savegraph(filename::String; kwargs...) = td -> pgfsave(filename, td; kwargs...) # allow use of `plot(...) |> savegraph(filename)`
 
 end # module
