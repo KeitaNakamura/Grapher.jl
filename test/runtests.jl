@@ -123,6 +123,11 @@ end
         @test only(ax.contents).options == plot_options(@pgf{only_marks})
         ax = plot([1,2,3], [4,5,6], only_markers = true)
         @test only(ax.contents).options == plot_options(@pgf{only_marks})
+        # mark_repeat/marker_repeat
+        ax = plot(1:10, 1:10, mark_repeat = 2)
+        @test only(ax.contents).options == plot_options(@pgf{mark_repeat = 2})
+        ax = plot(1:10, 1:10, marker_repeat = 2)
+        @test only(ax.contents).options == plot_options(@pgf{mark_repeat = 2})
     end
 
     @testset "line_style" begin
