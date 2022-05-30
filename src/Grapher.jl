@@ -176,9 +176,18 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}}; kwargs
         delete!(kwargs, :cycle_list_name)
     end
 
+    # group_style
     dims = string(size(axes, 2), " by ", size(axes, 1))
+    group_plot_opt = @pgf{group_style = {group_size = dims}}
+    if haskey(kwargs, :horizontal_sep)
+        group_plot_opt["group_style"]["horizontal_sep"] = kwargs[:horizontal_sep]
+    end
+    if haskey(kwargs, :vertical_sep)
+        group_plot_opt["group_style"]["vertical_sep"] = kwargs[:vertical_sep]
+    end
+
     axis_like = GroupPlot(
-        merge!(default_axis_options(), @pgf{group_style = {group_size = dims}}),
+        merge!(default_axis_options(), group_plot_opt),
         permutedims(axes)...,
     )
     set_axis_options!(axis_like; kwargs...)
