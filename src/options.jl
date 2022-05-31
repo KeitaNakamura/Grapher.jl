@@ -36,24 +36,28 @@ merge_recursive(args...) = merge_recursive!(@pgf{}, args...)
 function fix_axis_options!(options::Options)
     # size of figure
     if haskey(options, "size")
-        if options["size"] == "landscape"
-            options["width"] = "80mm"
+        sz = options["size"]
+        if sz == "landscape"
+            options["width"]  = "80mm"
             options["height"] = "50mm"
-        elseif options["size"] == "large landscape"
-            options["width"] = "140mm"
+        elseif sz == "large landscape"
+            options["width"]  = "140mm"
             options["height"] = "90mm"
-        elseif options["size"] == "portrait"
-            options["width"] = "50mm"
+        elseif sz == "portrait"
+            options["width"]  = "50mm"
             options["height"] = "80mm"
-        elseif options["size"] == "large portrait"
-            options["width"] = "90mm"
+        elseif sz == "large portrait"
+            options["width"]  = "90mm"
             options["height"] = "140mm"
-        elseif options["size"] == "square"
-            options["width"] = "80mm"
+        elseif sz == "square"
+            options["width"]  = "80mm"
             options["height"] = "80mm"
-        elseif options["size"] == "large square"
-            options["width"] = "140mm"
+        elseif sz == "large square"
+            options["width"]  = "140mm"
             options["height"] = "140mm"
+        elseif sz isa Tuple{String, String}
+            options["width"]  = sz[1]
+            options["height"] = sz[2]
         end
         delete!(options, "size")
     end
