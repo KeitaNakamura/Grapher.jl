@@ -38,6 +38,8 @@ end
         @test ax.options == axis_options(@pgf{width = "50mm", height = "80mm"})
         ax = plot([1,2,3], [4,5,6], size = "square")
         @test ax.options == axis_options(@pgf{width = "80mm", height = "80mm"})
+        ax = plot([1,2,3], [4,5,6], size = ("6cm", "4cm"))
+        @test ax.options == axis_options(@pgf{width = "6cm", height = "4cm"})
     end
 
     @testset "xtick, ytick, ztick" begin
