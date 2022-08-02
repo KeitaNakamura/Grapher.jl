@@ -164,7 +164,7 @@ function fix_plot_options!(options::Options)
     end
 
     # on/off options
-    on_off_options = ["smooth", "only_marks", "no_marks"]
+    on_off_options = ["smooth", "only_marks", "no_marks", "surf", "mesh", "scatter"]
     for name in on_off_options
         if haskey(options, name)
             if options[name] == true
