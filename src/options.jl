@@ -183,6 +183,14 @@ function fix_plot_options!(options::Options)
         end
     end
 
+    # black
+    if haskey(options, "black")
+        if options["black"]
+            options["color"] = "black"
+        end
+        delete!(options, "black")
+    end
+
     options
 end
 

@@ -157,6 +157,12 @@ end
             end
         end
     end
+
+    @testset "black" begin
+        ax = plot(1:3, 4:6, black = true)
+        plt = only(ax.contents)
+        @test plt.options == plot_options(@pgf{color = "black"})
+    end
 end
 
 @testset "Plots" begin
