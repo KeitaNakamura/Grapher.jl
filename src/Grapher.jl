@@ -79,6 +79,7 @@ const plot_attributes = Dict(
     :xmap => "xmap",
     :ymap => "ymap",
     :zmap => "zmap",
+    :black => "black",
 )
 const mark_attributes = Dict(
     :marker_fill => "fill",
