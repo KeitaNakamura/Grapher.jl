@@ -149,9 +149,16 @@ end
     end
 
     @testset "on/off options" begin
-        for name in (:smooth, :only_marks, :no_marks)
+        for name in (:smooth, :only_marks, :no_marks, :scatter)
             @eval begin
                 ax = plot([1,2,3], [4,5,6], $name = true)
+                plt = only(ax.contents)
+                @test plt.options == plot_options(@pgf{$name})
+            end
+        end
+        for name in (:surf, :mesh)
+            @eval begin
+                ax = plot([1,2,3], [4,5,6], rand(3,3), $name = true)
                 plt = only(ax.contents)
                 @test plt.options == plot_options(@pgf{$name})
             end
