@@ -63,10 +63,6 @@ const axis_attributes = Dict(
 const plot_attributes = Dict(
     :mark   => "mark",
     :marker => "mark",
-    :only_marks   => "only_marks",
-    :only_markers => "only_marks",
-    :no_marks   => "no_marks",
-    :no_markers => "no_marks",
     :mark_repeat => "mark_repeat",
     :marker_repeat => "mark_repeat",
     :color => "color",
@@ -74,12 +70,20 @@ const plot_attributes = Dict(
     :opacity => "opacity",
     :line_width => "line_width",
     :line_style => "line_style",
-    :smooth => "smooth",
     :fill_opacity => "fill_opacity",
     :xmap => "xmap",
     :ymap => "ymap",
     :zmap => "zmap",
     :black => "black",
+    # on/off options
+    :smooth => "smooth",
+    :only_marks   => "only_marks",
+    :only_markers => "only_marks",
+    :no_marks   => "no_marks",
+    :no_markers => "no_marks",
+    :surf => "surf",
+    :mesh => "mesh",
+    :scatter => "scatter",
 )
 const mark_attributes = Dict(
     :marker_fill => "fill",
@@ -226,13 +230,13 @@ end
 
 _map(f::typeof(identity), x) = x
 _map(f, x) = mappedarray(f, x)
-function plotobject(x::AbstractVector, y::AbstractVector; xmap = identity, ymap = identity, kwargs...)
+function plotobject(x::AbstractArray, y::AbstractArray; xmap = identity, ymap = identity, kwargs...)
     x′ = _map(xmap, x)
     y′ = _map(ymap, y)
     # xmap and ymap options are dropped here
     plotobject(Coordinates(x′, y′); kwargs...)
 end
-function plotobject(x::AbstractVector, y::AbstractVector, z::AbstractVector; xmap = identity, ymap = identity, zmap = identity, kwargs...)
+function plotobject(x::AbstractArray, y::AbstractArray, z::AbstractArray; xmap = identity, ymap = identity, zmap = identity, kwargs...)
     x′ = _map(xmap, x)
     y′ = _map(ymap, y)
     z′ = _map(zmap, z)
