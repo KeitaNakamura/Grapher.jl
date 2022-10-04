@@ -71,6 +71,15 @@ end
         ax = plot(1:3, 4:6, black = true)
         @test ax.options == axis_options(@pgf{cycle_list_name = "linestyles*"})
     end
+
+    @testset "on/off options" begin
+        for name in (:grid,)
+            @eval begin
+                ax = plot([1,2,3], [4,5,6], $name = true)
+                @test ax.options == axis_options(@pgf{$name})
+            end
+        end
+    end
 end
 
 @testset "Legend" begin

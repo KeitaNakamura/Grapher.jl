@@ -138,6 +138,18 @@ function fix_axis_options!(options::Options)
         delete!(options, "black")
     end
 
+    # on/off options
+    on_off_options = ["grid"]
+    for name in on_off_options
+        if haskey(options, name)
+            if options[name] == true
+                options[name] = nothing
+            else
+                delete!(options, name)
+            end
+        end
+    end
+
     options
 end
 
@@ -164,7 +176,7 @@ function fix_plot_options!(options::Options)
     end
 
     # on/off options
-    on_off_options = ["smooth", "only_marks", "no_marks", "surf", "mesh", "scatter"]
+    on_off_options = ["smooth", "only_marks", "no_marks", "surf", "mesh", "scatter", "grid"]
     for name in on_off_options
         if haskey(options, name)
             if options[name] == true
