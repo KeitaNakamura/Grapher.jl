@@ -59,6 +59,8 @@ const axis_attributes = Dict(
     :cycle_list_name => "cycle_list_name",
     :bar_width => "bar_width",
     :black => "black",
+    # on/off options
+    :grid => "grid",
 )
 const plot_attributes = Dict(
     :mark   => "mark",
