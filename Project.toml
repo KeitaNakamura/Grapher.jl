@@ -11,7 +11,7 @@ PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-CSV = "0.9"
+CSV = "0.9, 0.10"
 LaTeXStrings = "1.2"
 MappedArrays = "0.4"
 PGFPlotsX = "1.5"
