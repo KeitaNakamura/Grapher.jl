@@ -292,7 +292,7 @@ extract_data(table::CSV.File, names::Union{Tuple, AbstractVector}) = hcat((table
 function plot(table::CSV.File, names...; kwargs...)
     plot(extract_data.(Ref(table), names)...; kwargs...)
 end
-plot(filename::AbstractString, names...; kwargs...) = plot(CSV.File(filename), names...; kwargs...)
+plot(filename::AbstractString, names...; kwargs...) = plot(CSV.File(filename; comment="#"), names...; kwargs...)
 
 function scatter(args...; plot_options = @pgf{}, kwargs...)
     plot_options["only_marks"] = nothing
