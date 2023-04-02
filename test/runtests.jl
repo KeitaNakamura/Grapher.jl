@@ -14,6 +14,12 @@ function getcoords(x::Grapher.Plot)
     coords.data            # `Vector`
 end
 
+# remove premeable to handle the font not installed
+if Grapher.PGFPlotsX.latexengine() == Grapher.PGFPlotsX.LUALATEX
+    @assert popfirst!(Grapher.PGFPlotsX.CUSTOM_PREAMBLE) == "\\usepackage{unicode-math}"
+    @assert popfirst!(Grapher.PGFPlotsX.CUSTOM_PREAMBLE) == "\\setmainfont{STIX Two Text}"
+    @assert popfirst!(Grapher.PGFPlotsX.CUSTOM_PREAMBLE) == "\\setmathfont{STIX Two Math}"
+end
 
 @testset "Axis options" begin
     ax = plot([1,2,3], [4,5,6])
