@@ -230,7 +230,7 @@ end
     ax = group.contents[1]
     @test length(ax.contents) == 2
     @test ax.contents[2] isa Grapher.LegendEntry
-    @test group.options["legend_pos"] == "north east"
+    @test group.options["legend pos"] == "north east"
 
     group = plot([plot([1,2,3], [4,5,6]) plot([1,2,3], [6,5,4])
                   plot([1,2,3], [7,8,9]) plot([1,2,3], [9,8,7])],
@@ -238,14 +238,14 @@ end
     ax = group.contents[4]
     @test length(ax.contents) == 2
     @test ax.contents[2] isa Grapher.LegendEntry
-    @test group.options["legend_pos"] == "north east"
+    @test group.options["legend pos"] == "north east"
 
     group = plot([plot([1,2,3], [4,5,6]) plot([1,2,3], [6,5,4])
                   plot([1,2,3], [7,8,9]) plot([1,2,3], [9,8,7])],
                  horizontal_sep = "2.0cm",
                  vertical_sep = "3.0cm")
-    @test group.options["group_style"]["horizontal_sep"] == "2.0cm"
-    @test group.options["group_style"]["vertical_sep"] == "3.0cm"
+    @test group.options["group style"]["horizontal sep"] == "2.0cm"
+    @test group.options["group style"]["vertical sep"] == "3.0cm"
 end
 
 @testset "Save graph" begin

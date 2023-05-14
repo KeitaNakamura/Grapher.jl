@@ -63,37 +63,37 @@ function fix_axis_options!(options::Options)
     end
 
     # for legend style
-    if !haskey(options, "legend_style")
-        options["legend_style"] = @pgf{}
+    if !haskey(options, "legend style")
+        options["legend style"] = @pgf{}
     end
-    legend_style = options["legend_style"]
-    if haskey(options, "legend_pos")
-        if options["legend_pos"] isa String
+    legend_style = options["legend style"]
+    if haskey(options, "legend pos")
+        if options["legend pos"] isa String
             # allow `legend_pos = "outer south"`
-            if options["legend_pos"] == "outer south"
+            if options["legend pos"] == "outer south"
                 legend_style["at"] = Coordinate(0.5, -0.15)
                 legend_style["anchor"] = "north"
-                legend_style["legend_columns"] = "-1"
+                legend_style["legend columns"] = "-1"
                 # legend_style[:inner_sep] = "1mm"
                 legend_style["style"] = @pgf{column_sep = "2mm"}
-                delete!(options, "legend_pos")
+                delete!(options, "legend pos")
             end
         else
             # allow `legend_pos = (x, y)`
-            legend_style["at"] = Coordinate(options["legend_pos"]...)
-            delete!(options, "legend_pos")
+            legend_style["at"] = Coordinate(options["legend pos"]...)
+            delete!(options, "legend pos")
         end
     end
-    if haskey(options, "legend_anchor")
-        legend_style["anchor"] = options["legend_anchor"]
-        delete!(options, "legend_anchor")
+    if haskey(options, "legend anchor")
+        legend_style["anchor"] = options["legend anchor"]
+        delete!(options, "legend anchor")
     end
 
     # tick
     for name in ("xtick", "ytick", "ztick")
         if haskey(options, name)
             if options[name] isa Union{Vector{<: AbstractString}, Tuple{Vararg{AbstractString}}}
-                options[string("symbolic_", name[1], "_coords")] = collect(options[name])
+                options[string("symbolic ", name[1], " coords")] = collect(options[name])
                 options[name] = "data"
             end
             if options[name] isa Tuple
@@ -103,20 +103,20 @@ function fix_axis_options!(options::Options)
     end
 
     # tick_precision
-    for name in ("xtick_precision", "ytick_precision", "ztick_precision")
+    for name in ("xtick precision", "ytick precision", "ztick precision")
         if haskey(options, name)
             dir = name[1]
-            options["scaled_$(dir)_ticks"] = false
-            tick_label_style = get!(options, "$(dir)_tick_label_style", @pgf{})
+            options["scaled $dir ticks"] = false
+            tick_label_style = get!(options, "$dir tick label style", @pgf{})
             tick_label_style["/pgf/number format/fixed"] = nothing
             tick_label_style["/pgf/number format/precision"] = options[name]
             delete!(options, name)
         end
     end
 
-    if get(options, "logtick_fixed", false)
-        options["log_ticks_with_fixed_point"] = nothing
-        delete!(options, "logtick_fixed")
+    if get(options, "logtick fixed", false)
+        options["log ticks with fixed point"] = nothing
+        delete!(options, "logtick fixed")
     end
 
     # lims
@@ -133,7 +133,7 @@ function fix_axis_options!(options::Options)
     # black
     if haskey(options, "black")
         if options["black"]
-            options["cycle_list_name"] = "linestyles*"
+            options["cycle list name"] = "linestyles*"
         end
         delete!(options, "black")
     end
@@ -155,7 +155,7 @@ end
 
 function fix_plot_options!(options::Options)
     # give only `{key}` not `{key = value}`
-    key_options = ["line_style"]
+    key_options = ["line style"]
     for name in key_options
         if haskey(options, name)
             pgf_name = options[name]
@@ -165,18 +165,18 @@ function fix_plot_options!(options::Options)
     end
 
     # line_width
-    if haskey(options, "line_width")
-        if options["line_width"] in ["ultra thin", "very thin", "thin", "semithick", "thick", "very thick", "ultra thick"]
-            options[options["line_width"]] = nothing
-            delete!(options, "line_width")
-        elseif options["line_width"] === nothing
+    if haskey(options, "line width")
+        if options["line width"] in ["ultra thin", "very thin", "thin", "semithick", "thick", "very thick", "ultra thick"]
+            options[options["line width"]] = nothing
+            delete!(options, "line width")
+        elseif options["line width"] === nothing
             options["draw"] = "none"
-            delete!(options, "line_width")
+            delete!(options, "line width")
         end
     end
 
     # on/off options
-    on_off_options = ["smooth", "only_marks", "no_marks", "surf", "mesh", "scatter", "grid"]
+    on_off_options = ["smooth", "only marks", "no marks", "surf", "mesh", "scatter", "grid"]
     for name in on_off_options
         if haskey(options, name)
             if options[name] == true
@@ -191,7 +191,7 @@ function fix_plot_options!(options::Options)
     if haskey(options, "mark")
         if options["mark"] === nothing
             delete!(options, "mark")
-            options["no_marks"] = nothing # set no_marks
+            options["no marks"] = nothing # set no_marks
         end
     end
 
@@ -223,10 +223,10 @@ end
 set_plot_options!(p::Any; kwargs...) = p
 function set_plot_options!(p::Plot; plot_options = @pgf{}, mark_options = @pgf{}, kwargs...)
     merge_recursive!(p, plot_options, extract_plot_options(; kwargs...))
-    if !haskey(p.options, "mark_options")
-        p["mark_options"] = @pgf{}
+    if !haskey(p.options, "mark options")
+        p["mark options"] = @pgf{}
     end
-    merge_recursive!(p["mark_options"], mark_options, extract_mark_options(; kwargs...))
+    merge_recursive!(p["mark options"], mark_options, extract_mark_options(; kwargs...))
     p
 end
 function set_plot_options!(a::PGFPlotsX.AxisLike; kwargs...)

@@ -38,32 +38,32 @@ const axis_attributes = Dict(
     :xlims => "xlims",
     :ylims => "ylims",
     :zlims => "zlims",
-    :xdir => "x_dir",
-    :ydir => "y_dir",
-    :zdir => "z_dir",
+    :xdir => "x dir",
+    :ydir => "y dir",
+    :zdir => "z dir",
     :xaxis => "xmode",
     :yaxis => "ymode",
     :zaxis => "zmode",
-    :enlarge_x_limits => "enlarge_x_limits",
-    :enlarge_y_limits => "enlarge_y_limits",
-    :enlarge_z_limits => "enlarge_z_limits",
+    :enlarge_x_limits => "enlarge x limits",
+    :enlarge_y_limits => "enlarge y limits",
+    :enlarge_z_limits => "enlarge z limits",
     :enlargelimits => "enlargelimits",
     :xtick => "xtick",
     :ytick => "ytick",
     :ztick => "ztick",
-    :xtick_precision => "xtick_precision",
-    :ytick_precision => "ytick_precision",
-    :ztick_precision => "ztick_precision",
-    :logtick_fixed => "logtick_fixed",
-    :legend_pos => "legend_pos",
-    :legend_columns => "legend_columns",
-    :legend_anchor => "legend_anchor",
-    :minorticks => "minor_tick_num",
+    :xtick_precision => "xtick precision",
+    :ytick_precision => "ytick precision",
+    :ztick_precision => "ztick precision",
+    :logtick_fixed => "logtick fixed",
+    :legend_pos => "legend pos",
+    :legend_columns => "legend columns",
+    :legend_anchor => "legend anchor",
+    :minorticks => "minor tick num",
     :width => "width",
     :height => "height",
     :size => "size",
-    :cycle_list_name => "cycle_list_name",
-    :bar_width => "bar_width",
+    :cycle_list_name => "cycle list name",
+    :bar_width => "bar width",
     :black => "black",
     # on/off options
     :grid => "grid",
@@ -71,24 +71,24 @@ const axis_attributes = Dict(
 const plot_attributes = Dict(
     :mark   => "mark",
     :marker => "mark",
-    :mark_repeat => "mark_repeat",
-    :marker_repeat => "mark_repeat",
+    :mark_repeat => "mark repeat",
+    :marker_repeat => "mark repeat",
     :color => "color",
     :fill => "fill",
     :opacity => "opacity",
-    :line_width => "line_width",
-    :line_style => "line_style",
-    :fill_opacity => "fill_opacity",
+    :line_width => "line width",
+    :line_style => "line style",
+    :fill_opacity => "fill opacity",
     :xmap => "xmap",
     :ymap => "ymap",
     :zmap => "zmap",
     :black => "black",
     # on/off options
     :smooth => "smooth",
-    :only_marks   => "only_marks",
-    :only_markers => "only_marks",
-    :no_marks   => "no_marks",
-    :no_markers => "no_marks",
+    :only_marks   => "only marks",
+    :only_markers => "only marks",
+    :no_marks   => "no marks",
+    :no_markers => "no marks",
     :surf => "surf",
     :mesh => "mesh",
     :scatter => "scatter",
@@ -184,7 +184,7 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}}; kwargs
     if haskey(kwargs, :cycle_list_name)
         for ax in axes
             ax === nothing && continue
-            ax["cycle_list_name"] = kwargs[:cycle_list_name]
+            ax["cycle list name"] = kwargs[:cycle_list_name]
         end
         delete!(kwargs, :cycle_list_name)
     end
@@ -193,10 +193,10 @@ function plot(axes::AbstractArray{<: Union{PGFPlotsX.AxisLike, Nothing}}; kwargs
     dims = string(size(axes, 2), " by ", size(axes, 1))
     group_plot_opt = @pgf{group_style = {group_size = dims}}
     if haskey(kwargs, :horizontal_sep)
-        group_plot_opt["group_style"]["horizontal_sep"] = kwargs[:horizontal_sep]
+        group_plot_opt["group style"]["horizontal sep"] = kwargs[:horizontal_sep]
     end
     if haskey(kwargs, :vertical_sep)
-        group_plot_opt["group_style"]["vertical_sep"] = kwargs[:vertical_sep]
+        group_plot_opt["group style"]["vertical sep"] = kwargs[:vertical_sep]
     end
 
     axis_like = GroupPlot(
@@ -301,18 +301,18 @@ end
 plot(filename::AbstractString, names...; kwargs...) = plot(CSV.File(filename; comment="#"), names...; kwargs...)
 
 function scatter(args...; plot_options = @pgf{}, kwargs...)
-    plot_options["only_marks"] = nothing
+    plot_options["only marks"] = nothing
     plot(args...; plot_options, kwargs...)
 end
 
 function xbar_stacked(args...; axis_options = @pgf{}, kwargs...)
-    axis_options["xbar_stacked"] = nothing
-    axis_options["minor_tick_num"] = 0
+    axis_options["xbar stacked"] = nothing
+    axis_options["minor tick num"] = 0
     plot(args...; axis_options, kwargs...)
 end
 function ybar_stacked(args...; axis_options = @pgf{}, kwargs...)
-    axis_options["ybar_stacked"] = nothing
-    axis_options["minor_tick_num"] = 0
+    axis_options["ybar stacked"] = nothing
+    axis_options["minor tick num"] = 0
     plot(args...; axis_options, kwargs...)
 end
 
