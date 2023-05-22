@@ -109,7 +109,7 @@ default_axis_options() =
         cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
         minor_tick_num = 1,
     }
-default_plot_options() = @pgf{mark_options = default_mark_options()}
+default_plot_options() = @pgf{semithick, mark_options = default_mark_options()}
 default_mark_options() = @pgf{solid}
 
 include("options.jl")
