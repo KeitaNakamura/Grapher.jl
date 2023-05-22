@@ -1,7 +1,7 @@
 name = "Grapher"
 uuid = "cb5f3ba8-f211-439d-a907-3cde74a9b555"
 authors = ["Keita Nakamura <keita.nakamura.1109@gmail.com>"]
-version = "0.6.1"
+version = "0.7.0"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
