@@ -1,7 +1,7 @@
 name = "Grapher"
 uuid = "cb5f3ba8-f211-439d-a907-3cde74a9b555"
 authors = ["Keita Nakamura <keita.nakamura.1109@gmail.com>"]
-version = "0.6.1"
+version = "0.7.0"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -14,6 +14,6 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 CSV = "0.9, 0.10"
 LaTeXStrings = "1.2"
 MappedArrays = "0.4"
-PGFPlotsX = "1.5,1.6"
+PGFPlotsX = "1.6"
 Reexport = "1.2"
 julia = "1.6"
