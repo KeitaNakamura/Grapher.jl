@@ -39,11 +39,11 @@ end
 
     @testset "size" begin
         ax = plot([1,2,3], [4,5,6], size = "landscape")
-        @test ax.options == axis_options(@pgf{width = "80mm", height = "50mm"})
+        @test ax.options == axis_options(@pgf{width = "65mm", height = "40mm"})
         ax = plot([1,2,3], [4,5,6], size = "portrait")
-        @test ax.options == axis_options(@pgf{width = "50mm", height = "80mm"})
+        @test ax.options == axis_options(@pgf{width = "40mm", height = "65mm"})
         ax = plot([1,2,3], [4,5,6], size = "square")
-        @test ax.options == axis_options(@pgf{width = "80mm", height = "80mm"})
+        @test ax.options == axis_options(@pgf{width = "65mm", height = "65mm"})
         ax = plot([1,2,3], [4,5,6], size = ("6cm", "4cm"))
         @test ax.options == axis_options(@pgf{width = "6cm", height = "4cm"})
     end
