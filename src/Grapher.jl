@@ -15,9 +15,8 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage{unicode-math}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\setmainfont{STIX Two Text}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\setmathfont{STIX Two Math}")
-    else
-        push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage[group-separator={,}]{siunitx}")
     end
+    push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage[group-separator={,}]{siunitx}")
 end
 
 export
