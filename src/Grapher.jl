@@ -252,6 +252,9 @@ function plotobject(x::AbstractArray, y::AbstractArray, z::AbstractArray; xmap =
 end
 
 # with functions
+function plotobject(x::AbstractVector; kwargs...)
+    plotobject(1:length(x), x; kwargs...)
+end
 function plotobject(x, y::Function; kwargs...)
     plotobject(x, mappedarray(y, x); kwargs...)
 end
