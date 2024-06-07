@@ -17,6 +17,21 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\setmathfont{STIX Two Math}")
     end
     push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage[group-separator={,}]{siunitx}")
+    push!(PGFPlotsX.CUSTOM_PREAMBLE, split(raw"""
+                                           \definecolor{color1}{RGB}{157,45,42}
+                                           \definecolor{color2}{RGB}{204,111,44}
+                                           \definecolor{color3}{RGB}{220,168,56}
+                                           \definecolor{color4}{RGB}{128,193,188}
+                                           \definecolor{color5}{RGB}{22,132,187}
+                                           \definecolor{color6}{RGB}{23,70,151}
+                                           \pgfplotscreateplotcyclelist{BlueOrange}{
+                                           {color1},
+                                           {color2},
+                                           {color3},
+                                           {color4},
+                                           {color5},
+                                           {color6}}
+                                           """)...)
 end
 
 export
@@ -107,7 +122,8 @@ default_axis_options() =
         tick_label_style = {font = raw"\footnotesize"},
         legend_style = {font = raw"\footnotesize"},
         # remove yellow from "color list". Other usuful lists are, for example, "linestyles", "linestyles*".
-        cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
+        # cycle_list = {red,blue,teal,orange,violet,cyan,green!70!black,magenta,gray,black,brown},
+        cycle_list_name = "BlueOrange",
         minor_tick_num = 1,
     }
 default_plot_options() = @pgf{semithick, mark_options = default_mark_options()}
