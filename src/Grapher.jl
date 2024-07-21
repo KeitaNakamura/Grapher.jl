@@ -18,9 +18,9 @@ function __init__()
     end
     push!(PGFPlotsX.CUSTOM_PREAMBLE, "\\usepackage[group-separator={,}]{siunitx}")
     push!(PGFPlotsX.CUSTOM_PREAMBLE, split(raw"""
-                                           \definecolor{color1}{RGB}{157,45,42}
-                                           \definecolor{color2}{RGB}{204,111,44}
-                                           \definecolor{color3}{RGB}{220,168,56}
+                                           \definecolor{color1}{RGB}{167,46,43}
+                                           \definecolor{color2}{RGB}{208,122,45}
+                                           \definecolor{color3}{RGB}{224,183,66}
                                            \definecolor{color4}{RGB}{128,193,188}
                                            \definecolor{color5}{RGB}{22,132,187}
                                            \definecolor{color6}{RGB}{23,70,151}
